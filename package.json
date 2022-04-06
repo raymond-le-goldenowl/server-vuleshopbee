@@ -75,7 +75,7 @@
     "*.ts": [
       "npm run lint",
       "npm run format",
-      "git add ."
+      "git add -A"
     ]
   }
 }
