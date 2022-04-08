@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 import config from 'ormconfig';
+
 import { NewsModule } from './news/news.module';
 import { MenuModule } from './menu/menu.module';
 import { TagsModule } from './tags/tags.module';
