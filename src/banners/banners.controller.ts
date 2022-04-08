@@ -73,7 +73,7 @@ export class BannersController {
   }
 
   /**
-   * Delete A Banner
+   * Delete Banners
    * @returns
    */
   @Delete('/all')
@@ -82,7 +82,7 @@ export class BannersController {
   }
 
   /**
-   *
+   * Delete A Banner
    * @param id string
    * @param remove is delete
    * @returns
@@ -93,7 +93,7 @@ export class BannersController {
   }
 
   /**
-   *
+   * Get Banners Images
    * @param imagePath name of image
    * @param res response
    * @returns image file
