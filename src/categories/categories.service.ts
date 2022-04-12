@@ -21,8 +21,6 @@ export class CategoriesService {
       createCategoryDto,
     );
 
-    console.log(categorySaved);
-
     if (!categorySaved) {
       throw new BadRequestException(`Can not save category`);
     }
@@ -49,6 +47,10 @@ export class CategoriesService {
         where: { id },
       });
     } catch (error) {
+      throw new BadRequestException();
+    }
+
+    if (!category) {
       throw new NotFoundException();
     }
     return category;
