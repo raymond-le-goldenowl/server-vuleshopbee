@@ -53,6 +53,5 @@ export class Supplier {
   deleted_at: Date;
 
   @OneToMany(() => Product, (product) => product.supplier)
-  @JoinColumn()
   products: Product[];
 }
