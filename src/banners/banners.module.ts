@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { BannersService } from './banners.service';
 import { BannersController } from './banners.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { BannersRepository } from './banners.repository';
 
 @Module({

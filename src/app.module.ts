@@ -1,5 +1,9 @@
+import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MulterModule } from '@nestjs/platform-express';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
 import config from 'ormconfig';
 
 import { NewsModule } from './news/news.module';
@@ -32,32 +36,38 @@ import { OrderStatusCodeModule } from './order_status_code/order_status_code.mod
 @Module({
   imports: [
     TypeOrmModule.forRoot(config),
-    BannersModule,
-    SlidesModule,
+    MulterModule.register({
+      dest: './uploads',
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), '..', 'uploads'),
+    }),
+    TagsModule,
     NewsModule,
+    MenuModule,
+    RolesModule,
+    UsersModule,
+    WardsModule,
+    CartsModule,
+    OrdersModule,
+    SlidesModule,
+    AddressModule,
+    BannersModule,
+    GendersModule,
+    ProductsModule,
+    CartItemModule,
+    WishlistModule,
     KeywordsModule,
     FloatingModule,
-    BroadcastsModule,
-    GendersModule,
-    RolesModule,
-    CategoriesModule,
-    MenuModule,
-    ProductsModule,
     SuppliersModule,
     DiscountsModule,
-    TagsModule,
-    UsersModule,
-    AddressModule,
     ProvincesModule,
     DistrictsModule,
-    WardsModule,
-    WishlistModule,
     PromotionModule,
-    CartsModule,
-    CartItemModule,
-    OrderStatusCodeModule,
-    OrdersModule,
     OrderItemModule,
+    BroadcastsModule,
+    CategoriesModule,
+    OrderStatusCodeModule,
   ],
   controllers: [],
   providers: [],
