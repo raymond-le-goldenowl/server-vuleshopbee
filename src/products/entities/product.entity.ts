@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 
 import { Tag } from 'src/tags/entities/tag.entity';
@@ -37,7 +38,7 @@ export class Product {
   price: number;
 
   @Column({ type: 'char', length: 255 })
-  slug: number;
+  slug: string;
 
   @Column({ type: 'text' })
   image: string;
@@ -51,8 +52,8 @@ export class Product {
   @Column({ type: 'text' })
   platform: string;
 
-  @Column({ type: 'boolean' })
-  available: boolean;
+  // @Column({ type: 'boolean' })
+  // available: boolean;
 
   @Column({ type: 'boolean' })
   status: boolean;
@@ -103,7 +104,7 @@ export class Product {
   @ManyToOne(() => Discount, (discount) => discount.product)
   discounts: Discount[];
 
-  @ManyToOne(() => Tag, (tag) => tag.product)
+  @OneToMany(() => Tag, (tag) => tag.product)
   tags: Tag[];
 
   @OneToOne(() => Wishlist, (wishlist) => wishlist.product)
