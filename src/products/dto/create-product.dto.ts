@@ -22,4 +22,5 @@ export class CreateProductDto {
   amount: number;
 
   category_id: string;
+  supplier_id: string;
 }
