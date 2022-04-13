@@ -1,7 +1,7 @@
 import {
   Column,
   Entity,
-  OneToMany,
+  ManyToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -40,7 +40,7 @@ export class Discount {
   })
   deleted_at: Date;
 
-  @OneToMany(() => Product, (product) => product.discounts)
+  @ManyToOne(() => Product, (product) => product.discounts)
   @JoinColumn()
   product: Product;
 }

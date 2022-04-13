@@ -101,7 +101,7 @@ export class Product {
   @ManyToOne(() => Supplier, (supplier) => supplier.products)
   supplier: Supplier;
 
-  @ManyToOne(() => Discount, (discount) => discount.product)
+  @OneToMany(() => Discount, (discount) => discount.product)
   discounts: Discount[];
 
   @OneToMany(() => Tag, (tag) => tag.product)
