@@ -1,8 +1,6 @@
-import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
-import { ServeStaticModule } from '@nestjs/serve-static';
 
 import config from 'ormconfig';
 
@@ -38,9 +36,6 @@ import { OrderStatusCodeModule } from './order_status_code/order_status_code.mod
     TypeOrmModule.forRoot(config),
     MulterModule.register({
       dest: './uploads',
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), '..', 'uploads'),
     }),
     TagsModule,
     NewsModule,
