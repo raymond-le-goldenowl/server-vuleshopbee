@@ -98,7 +98,8 @@ export class Product {
   @JoinColumn()
   category: Category;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.products)
+  @ManyToOne(() => Supplier, (supplier) => supplier.products, { eager: true })
+  @JoinColumn()
   supplier: Supplier;
 
   @ManyToOne(() => Discount, (discount) => discount.product)
