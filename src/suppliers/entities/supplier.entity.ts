@@ -2,7 +2,6 @@ import {
   Column,
   Entity,
   OneToMany,
-  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
@@ -53,6 +52,5 @@ export class Supplier {
   deleted_at: Date;
 
   @OneToMany(() => Product, (product) => product.supplier)
-  @JoinColumn()
   products: Product[];
 }
