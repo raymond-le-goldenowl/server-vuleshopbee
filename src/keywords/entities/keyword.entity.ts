@@ -16,7 +16,7 @@ export class Keyword {
   text: string;
 
   @Column({ type: 'varchar', length: 255 })
-  icon: string;
+  icon!: string;
 
   @Column({ type: 'varchar', length: 255 })
   href: string;
