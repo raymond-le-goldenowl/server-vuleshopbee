@@ -32,7 +32,7 @@ export class Supplier {
   citizen_identity: string;
 
   @Column({ type: 'varchar', length: 45 })
-  varify: string;
+  verify: string;
 
   @CreateDateColumn({
     type: 'timestamp',

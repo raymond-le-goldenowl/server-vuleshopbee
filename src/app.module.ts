@@ -32,6 +32,7 @@ import { OrderItemModule } from './order_item/order_item.module';
 import { BroadcastsModule } from './broadcasts/broadcasts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { OrderStatusCodeModule } from './order_status_code/order_status_code.module';
+import { GuaranteePolicyModule } from './guarantee_policy/guarantee_policy.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { OrderStatusCodeModule } from './order_status_code/order_status_code.mod
     BroadcastsModule,
     CategoriesModule,
     OrderStatusCodeModule,
+    GuaranteePolicyModule,
   ],
   controllers: [],
   providers: [],

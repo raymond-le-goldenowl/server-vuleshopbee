@@ -19,6 +19,7 @@ import { Category } from 'src/categories/entities/category.entity';
 import { CartItem } from 'src/cart_item/entities/cart_item.entity';
 import { Promotion } from 'src/promotion/entities/promotion.entity';
 import { OrderItem } from 'src/order_item/entities/order_item.entity';
+import { GuaranteePolicy } from 'src/guarantee_policy/entities/guarantee_policy.entity';
 
 @Entity()
 export class Product {
@@ -119,4 +120,7 @@ export class Product {
 
   @OneToOne(() => OrderItem, (orderItem) => orderItem.product)
   orderItem: OrderItem;
+
+  @OneToOne(() => GuaranteePolicy, (guaranteePolicy) => guaranteePolicy.product)
+  guaranteePolicy: GuaranteePolicy;
 }
