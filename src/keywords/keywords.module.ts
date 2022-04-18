@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { KeywordsService } from './keywords.service';
-import { KeywordsController } from './keywords.controller';
-import { Keyword } from './entities/keyword.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { KeywordsService } from './keywords.service';
+import { KeywordsController } from './keywords.controller';
+import { KeywordsRepository } from './keywords.repository';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Keyword])],
+  imports: [TypeOrmModule.forFeature([KeywordsRepository])],
   controllers: [KeywordsController],
   providers: [KeywordsService],
 })
