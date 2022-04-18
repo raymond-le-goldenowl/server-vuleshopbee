@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { FloatingService } from './floating.service';
-import { FloatingController } from './floating.controller';
-import { Floating } from './entities/floating.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { FloatingService } from './floating.service';
+import { FloatingController } from './floating.controller';
+import { FloatingRepository } from './floating.repository';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Floating])],
+  imports: [TypeOrmModule.forFeature([FloatingRepository])],
   controllers: [FloatingController],
   providers: [FloatingService],
 })
