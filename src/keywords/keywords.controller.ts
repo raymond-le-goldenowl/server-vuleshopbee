@@ -24,7 +24,6 @@ export class KeywordsController {
    */
   @Post()
   create(@Body() createKeywordDto: CreateKeywordDto) {
-    console.log(createKeywordDto);
     return this.keywordsService.create(createKeywordDto);
   }
 
