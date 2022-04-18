@@ -20,7 +20,6 @@ export class BannersService {
   ) {}
 
   async create(icon, createBannerDto: CreateBannerDto): Promise<Banner> {
-    // return icon;
     if (!icon?.filename) {
       throw new BadRequestException();
     }
@@ -32,37 +31,49 @@ export class BannersService {
     }
 
     // create path point to images resource
-    const path = `/banners/images/${icon?.filename}`;
-    createBannerDto.icon = path;
+    createBannerDto.icon = `/banners/images/${icon?.filename}`;
 
     // save and assign a result saved
     const saved = await this.bannersRepository.save(createBannerDto);
 
     // if saved fail should be throw new error
     if (!saved) {
-      throw new BadRequestException(`Can not save object`);
+      throw new BadRequestException(`Can not save banner`);
     }
 
     return saved;
   }
 
-  async findAll(): Promise<Banner[]> {
-    const banners = await this.bannersRepository.find({ withDeleted: true });
+  async findAll(withDeleted: boolean): Promise<Banner[]> {
+    let banners = [];
+    if (withDeleted) {
+      banners = await this.bannersRepository.find({ withDeleted: true });
+    } else {
+      banners = await this.bannersRepository.find();
+    }
     return banners;
   }
 
-  async findOneBanner(id: string): Promise<Banner> {
-    // find one banner by id and with deleted
-    const banner = await this.bannersRepository.findOne({
-      where: {
-        id,
-      },
-      withDeleted: true,
-    });
+  async findOneBanner(id: string, withDeleted: boolean): Promise<Banner> {
+    let banner;
+    if (withDeleted) {
+      banner = await this.bannersRepository.findOne({
+        where: {
+          id,
+        },
+        withDeleted: true,
+      });
+    } else {
+      banner = await this.bannersRepository.findOne({
+        where: {
+          id,
+        },
+      });
+    }
 
-    // throw error if deleted fail
+    // throw error if banner not found
     if (!banner) {
-      throw new NotFoundException(`Banner with id "${id}" not found`);
+      throw new NotFoundException(`Banner with id #${id} not found`);
     }
 
     return banner;
@@ -74,18 +85,15 @@ export class BannersService {
     updateBannerDto: UpdateBannerDto,
   ): Promise<Banner> {
     // get banner want to update
-    const banner = await this.findOneBanner(id);
+    const banner = await this.findOneBanner(id, true);
 
     // check path
     if (!icon?.filename) {
       throw new BadRequestException();
     }
 
-    // create path point to images resource
-    const path = `/banners/images/${icon?.filename}`;
-
     // replace data with new values
-    banner.icon = path;
+    banner.icon = `/banners/images/${icon?.filename}`;
     banner.href = updateBannerDto.href;
 
     banner.text = 'search';
@@ -103,38 +111,20 @@ export class BannersService {
 
   async delete(id: string, remove: boolean) {
     // set `DATETIME` for delete column
-    let bannerDeleted;
+    const banner = await this.findOneBanner(id, true);
     if (remove) {
-      bannerDeleted = await this.bannersRepository.delete(id);
+      await this.bannersRepository.delete(banner.id);
     } else {
-      const banner = await this.findOneBanner(id);
-
       // Check if banner deleted
       if (banner.deleted_at) {
         throw new ConflictException(`Banner deleted before`);
       }
 
-      bannerDeleted = await this.bannersRepository.softDelete(id);
+      await this.bannersRepository.softDelete(banner.id);
     }
-
-    // throw error if deleted fail
-    if (bannerDeleted.affected < 0) {
-      throw new BadRequestException(`Can not delete banner with id "${id}"`);
-    }
-
-    return {
-      status: true,
-      message: 'Delete successfully',
-    };
   }
 
   async deleteAll() {
-    const deletedAll = await this.bannersRepository.delete({});
-
-    if (deletedAll.affected < 0) {
-      throw new BadRequestException(`Can not delete`);
-    }
-
-    return deletedAll;
+    await this.bannersRepository.delete({});
   }
 }
