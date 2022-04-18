@@ -41,8 +41,8 @@ export class BannersController {
    * @returns Banners[]
    */
   @Get()
-  findAll() {
-    return this.bannersService.findAll();
+  findAll(@Query('with_deleted') withDeleted: boolean) {
+    return this.bannersService.findAll(withDeleted);
   }
 
   /**
@@ -51,8 +51,11 @@ export class BannersController {
    * @returns Banner
    */
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bannersService.findOneBanner(id);
+  findOne(
+    @Param('id') id: string,
+    @Query('with_deleted') withDeleted: boolean,
+  ) {
+    return this.bannersService.findOneBanner(id, withDeleted);
   }
 
   /**
