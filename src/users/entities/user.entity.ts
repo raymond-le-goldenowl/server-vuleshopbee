@@ -3,6 +3,7 @@ import {
   Entity,
   OneToOne,
   OneToMany,
+  ManyToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -23,37 +24,37 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   full_name: string;
 
   @Column({ type: 'char', length: 255 })
   username: string;
 
-  @Column({ type: 'char', length: 255 })
+  @Column({ type: 'char', length: 255, nullable: true })
   password: string;
 
   @Column({ type: 'char', length: 320 })
   email: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   avatar: string;
 
-  @Column({ type: 'char', length: 15 })
+  @Column({ type: 'char', length: 15, nullable: true })
   citizen_identity: string;
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', default: true })
   public: boolean;
 
-  @Column({ type: 'varchar', length: 45 })
+  @Column({ type: 'varchar', length: 45, default: 'default' })
   auth_type: string;
 
-  @Column({ type: 'char', length: 255 })
+  @Column({ type: 'char', length: 255, nullable: true })
   user_google_id: string;
 
-  @Column({ type: 'char', length: 255 })
+  @Column({ type: 'char', length: 255, nullable: true })
   user_facebook_id: string;
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', default: true })
   is_active: boolean;
 
   @CreateDateColumn({
@@ -78,8 +79,9 @@ export class User {
   @JoinColumn()
   gender: Gender;
 
-  @OneToMany(() => Role, (role) => role.user)
-  roles: Role[];
+  @ManyToOne(() => Role, (role) => role.users, { eager: true })
+  @JoinColumn()
+  role: Role;
 
   @OneToMany(() => Address, (adress) => adress.user)
   address: Address[];

@@ -8,7 +8,7 @@ const config: PostgresConnectionOptions = {
   password: 'postgres',
   database: 'vuleshopbee',
   entities: ['dist/**/*.entity{.ts,.js}'],
-  synchronize: false,
+  synchronize: true,
 };
 
 export default config;
