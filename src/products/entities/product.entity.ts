@@ -43,13 +43,13 @@ export class Product {
   @Column({ type: 'text' })
   image: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   tutorial: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   platform: string;
 
   // @Column({ type: 'boolean' })
@@ -61,13 +61,13 @@ export class Product {
   @Column({ type: 'integer' })
   sale_of: number;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   variant_id: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   variant_title: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   variant_text: string;
 
   @Column({ type: 'varchar', length: 255 })

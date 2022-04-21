@@ -1,9 +1,8 @@
 import {
   Column,
   Entity,
-  ManyToOne,
+  OneToOne,
   OneToMany,
-  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
@@ -39,10 +38,9 @@ export class Cart {
   })
   deleted_at: Date;
 
-  @ManyToOne(() => User, (user) => user.carts)
-  @JoinColumn()
+  @OneToOne(() => User, (user) => user.cart)
   user: User;
 
-  @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
+  @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { eager: true })
   cartItem: CartItem[];
 }

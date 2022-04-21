@@ -15,9 +15,11 @@ import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
 import { User } from './entities/user.entity';
 import { ProfileDto } from './dto/profile.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { RolesService } from 'src/roles/roles.service';
 import { trimSingleObjectValue } from 'src/utils/trim-single-object-value';
+import { CartsService } from 'src/carts/carts.service';
+import { CreateCartDto } from 'src/carts/dto/create-cart.dto';
+import { Cart } from 'src/carts/entities/cart.entity';
 
 @Injectable()
 export class UsersService {
@@ -25,6 +27,7 @@ export class UsersService {
     @InjectRepository(UsersRepository) private usersRepository: UsersRepository,
     private jwtService: JwtService,
     private roleService: RolesService,
+    private cartsService: CartsService,
   ) {}
 
   async getUserByEmail(email: string): Promise<User | any> {
@@ -36,12 +39,10 @@ export class UsersService {
 
     try {
       userByEmail = await this.usersRepository.findOne({
-        where: {
-          email,
-        },
+        where: { email },
       });
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!userByEmail) {
@@ -67,7 +68,7 @@ export class UsersService {
         where: { email, auth_type },
       });
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!userByEmailAndAuthType) {
@@ -98,7 +99,9 @@ export class UsersService {
     }
 
     try {
+      const cart = await this.createCartForUser();
       const role = await this.roleService.findOneByText('user', true);
+      if (!role) throw new NotFoundException('Role unavailable');
 
       // generate salt and hash password
       const saltRounds = 10;
@@ -110,9 +113,10 @@ export class UsersService {
       userSaved = await this.usersRepository.save({
         ...signUpDto,
         role,
+        cart,
       });
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     delete userSaved.password;
@@ -124,18 +128,17 @@ export class UsersService {
     let userUpdated: User;
     const { password, email } = signInDto;
 
-    const userByEmail: User = await this.getUserByEmail(email);
-    const match = bcrypt.compareSync(password, userByEmail.password);
-
-    if (!match) {
-      throw new UnauthorizedException();
-    }
-
     try {
+      const userByEmail: User = await this.getUserByEmail(email);
+      if (!userByEmail) throw new UnauthorizedException();
+
+      const match = bcrypt.compareSync(password, userByEmail.password);
+      if (!match) throw new UnauthorizedException();
+
       userByEmail.is_active = true;
       userUpdated = await this.usersRepository.save(userByEmail);
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
     delete userUpdated.password;
     const accessToken = this.signToken(userUpdated);
@@ -160,7 +163,7 @@ export class UsersService {
       user.is_active = false;
       userUpdated = await this.usersRepository.save(user);
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!userUpdated) {
@@ -189,7 +192,7 @@ export class UsersService {
       user = { ...user, ...profileDto };
       userUpdated = await this.usersRepository.save(user);
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!userUpdated) {
@@ -217,7 +220,7 @@ export class UsersService {
       user.avatar = image.filename;
       userUpdated = await this.usersRepository.save(user);
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!userUpdated) {
@@ -233,7 +236,7 @@ export class UsersService {
     try {
       userByEmail = await this.getUserByEmail(email);
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!userByEmail) {
@@ -260,6 +263,7 @@ export class UsersService {
 
     if (!userByEmailAndAuthType) {
       try {
+        const cart = await this.createCartForUser();
         const role = await this.roleService.findOneByText('user', true);
         // create and save username, password, email.
         userSaved = await this.usersRepository.save({
@@ -271,13 +275,14 @@ export class UsersService {
           user_facebook_id: user.id,
           auth_type: user.provider,
           role,
+          cart,
         });
 
         delete userSaved.password;
         const accessToken = this.signToken(userSaved);
         return { user: userSaved, accessToken };
       } catch (error) {
-        throw new BadRequestException();
+        throw error;
       }
     }
 
@@ -291,7 +296,6 @@ export class UsersService {
       throw new BadRequestException();
     }
 
-    console.log(user);
     let userSaved: User;
 
     const email = user?.email;
@@ -302,18 +306,9 @@ export class UsersService {
 
     if (!userByEmailAndAuthType) {
       try {
+        const cart = await this.createCartForUser();
         const role = await this.roleService.findOneByText('user', true);
         // create and save username, password, email.
-        console.log({
-          email,
-          username: user.id,
-          password: null,
-          avatar: user.picture,
-          full_name: user.displayName,
-          user_google_id: user.id,
-          auth_type: user.provider,
-          role,
-        });
         userSaved = await this.usersRepository.save({
           email,
           username: user.id,
@@ -321,19 +316,33 @@ export class UsersService {
           user_google_id: user.id,
           auth_type: user.provider,
           role,
+          cart,
         });
 
         delete userSaved.password;
         const accessToken = this.signToken(userSaved);
         return { user: userSaved, accessToken };
       } catch (error) {
-        console.log(error);
-        throw new BadRequestException();
+        throw error;
       }
     }
 
     delete userByEmailAndAuthType.password;
     const accessToken = this.signToken(userByEmailAndAuthType);
     return { user: userByEmailAndAuthType, accessToken };
+  }
+
+  async createCartForUser(): Promise<Cart> {
+    let cart: Cart;
+    try {
+      const createCartDto: CreateCartDto = { accept_guaratee_policy: false };
+      cart = await this.cartsService.create(createCartDto);
+    } catch (error) {
+      throw error;
+    }
+
+    if (!cart) throw new BadRequestException();
+
+    return cart;
   }
 }

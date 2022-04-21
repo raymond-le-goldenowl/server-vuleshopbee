@@ -42,7 +42,6 @@ export class ProductsService {
       throw new BadRequestException();
     }
 
-    const path = `/products/images/${image?.filename}`;
     const slug = name.split(' ').join('-');
     const category = await this.categoriesService.findOne(category_id);
     const productSaved = await this.productsRepository.save({
@@ -51,7 +50,7 @@ export class ProductsService {
       original_price,
       price,
       slug: slug,
-      image: path,
+      image: image?.filename,
       tutorial,
       description,
       platform,

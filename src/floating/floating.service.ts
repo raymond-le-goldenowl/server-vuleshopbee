@@ -110,9 +110,8 @@ export class FloatingService {
       const banner = await this.findOneBanner(id);
 
       // Check if banner deleted
-      if (banner.deleted_at) {
+      if (banner.deleted_at)
         throw new ConflictException(`Banner deleted before`);
-      }
 
       bannerDeleted = await this.floatingRepository.softDelete(id);
     }

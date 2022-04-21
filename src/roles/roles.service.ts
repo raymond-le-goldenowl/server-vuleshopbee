@@ -19,7 +19,7 @@ export class RolesService {
 
       roleSaved = await this.rolesRepository.save(role);
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!roleSaved) {
@@ -38,7 +38,7 @@ export class RolesService {
         roles = await this.rolesRepository.find();
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     return roles;
@@ -56,7 +56,7 @@ export class RolesService {
         role = await this.rolesRepository.findOne({ where: { id } });
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     return role;
@@ -74,7 +74,7 @@ export class RolesService {
         role = await this.rolesRepository.findOne({ where: { text } });
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     return role;
@@ -88,7 +88,7 @@ export class RolesService {
       role = { ...role, ...updateRoleDto };
       roleSaved = await this.rolesRepository.save(role);
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     return roleSaved;
@@ -102,7 +102,7 @@ export class RolesService {
         await this.rolesRepository.softDelete(id);
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
   }
 }

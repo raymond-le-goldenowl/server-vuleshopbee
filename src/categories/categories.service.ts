@@ -33,7 +33,7 @@ export class CategoriesService {
     try {
       categories = await this.categoriesRepository.find({ withDeleted: true });
     } catch (error) {
-      throw new NotFoundException();
+      throw error;
     }
     return categories;
   }
@@ -47,7 +47,7 @@ export class CategoriesService {
         where: { id },
       });
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!category) {
@@ -61,20 +61,16 @@ export class CategoriesService {
     let categoryUpdated: Category;
     try {
       category = await this.findOne(id);
-      if (!category) {
-        throw new NotFoundException();
-      }
+      if (!category) throw new NotFoundException();
       category.text = updateCategoryDto.text;
       category.value = updateCategoryDto.value;
       category.deleted_at = null;
 
       const categoryUpdated = await this.categoriesRepository.save(category);
 
-      if (!categoryUpdated) {
-        throw new BadRequestException();
-      }
+      if (!categoryUpdated) throw new BadRequestException();
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     return categoryUpdated;
@@ -88,7 +84,7 @@ export class CategoriesService {
         await this.categoriesRepository.softDelete({});
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
   }
 
@@ -100,7 +96,7 @@ export class CategoriesService {
         await this.categoriesRepository.softDelete(id);
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
   }
 }

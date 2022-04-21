@@ -42,18 +42,16 @@ export class RolesGuard implements CanActivate {
       user = this.jwtService.verify(token);
     } catch (error) {
       const decodedToken = this.jwtService.decode(token) as User;
-      if (!decodedToken) {
-        throw new BadRequestException();
-      }
+      if (!decodedToken) throw new BadRequestException();
+
       const userToUpdate = await this.usersRepository.findOne(decodedToken.id);
       userToUpdate.is_active = false;
       await this.usersRepository.save(userToUpdate);
+
       throw new BadRequestException(error.message);
     }
 
-    if (!user?.role) {
-      throw new BadRequestException('No role');
-    }
+    if (!user?.role) throw new BadRequestException('No role');
 
     const roleValue = user.role.value as Role;
     return requiredRoles.includes(roleValue);

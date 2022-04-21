@@ -12,6 +12,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { RolesModule } from 'src/roles/roles.module';
 import { FacebookStrategy } from './strategy/facebook.strategy';
 import { GoogleStrategy } from './strategy/google.strategy';
+import { CartsModule } from 'src/carts/carts.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { GoogleStrategy } from './strategy/google.strategy';
       secret: jwtConstants.secret,
     }),
     RolesModule,
+    CartsModule,
   ],
   controllers: [UsersController],
   providers: [
@@ -32,5 +34,6 @@ import { GoogleStrategy } from './strategy/google.strategy';
     FacebookStrategy,
     GoogleStrategy,
   ],
+  exports: [UsersService],
 })
 export class UsersModule {}

@@ -109,9 +109,7 @@ export class SlidesService {
       const Slide = await this.findOneSlide(id);
 
       // Check if Slide deleted
-      if (Slide.deleted_at) {
-        throw new ConflictException(`Slide deleted before`);
-      }
+      if (Slide.deleted_at) throw new ConflictException(`Slide deleted before`);
 
       slideDeleted = await this.slidesRepository.softDelete(id);
     }

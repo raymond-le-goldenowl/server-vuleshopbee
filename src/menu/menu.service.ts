@@ -43,7 +43,7 @@ export class MenuService {
     try {
       list = await this.menuRepository.find({ withDeleted: true });
     } catch (error) {
-      throw new NotFoundException();
+      throw error;
     }
 
     return list;
@@ -59,7 +59,7 @@ export class MenuService {
         },
       });
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     if (!menu) {
@@ -74,9 +74,7 @@ export class MenuService {
 
     try {
       menu = await this.findOne(id);
-      if (!menu) {
-        throw new NotFoundException();
-      }
+      if (!menu) throw new NotFoundException();
 
       menu.href = updateMenuDto.href;
       menu.icon = updateMenuDto.icon;
@@ -85,11 +83,9 @@ export class MenuService {
 
       menuUpdated = await this.menuRepository.save(menu);
 
-      if (!menuUpdated) {
-        throw new BadRequestException();
-      }
+      if (!menuUpdated) throw new BadRequestException();
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     return menuUpdated;
@@ -103,7 +99,7 @@ export class MenuService {
         await this.menuRepository.softDelete({});
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
   }
 
@@ -115,7 +111,7 @@ export class MenuService {
         await this.menuRepository.softDelete(id);
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
   }
 }

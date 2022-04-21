@@ -92,8 +92,9 @@ export class User {
   @OneToMany(() => Promotion, (promotion) => promotion.user)
   promotion: Promotion[];
 
-  @OneToMany(() => Cart, (cart) => cart.user)
-  carts: Cart[];
+  @OneToOne(() => Cart, (cart) => cart.user, { eager: true })
+  @JoinColumn()
+  cart: Cart;
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
