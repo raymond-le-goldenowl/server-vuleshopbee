@@ -41,7 +41,7 @@ export class CartItemService {
         return await this.updateQuantityOfItem(
           findProductIsExists.id,
           {
-            quantity: 1,
+            quantity: createCartItemDto.quantity,
           },
           cartId,
           productId,
@@ -165,5 +165,14 @@ export class CartItemService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async removeCartItemByCartId(cartId: string) {
+    return await this.cartItemRepository
+      .createQueryBuilder('cart_item')
+      .delete()
+      .from(CartItem)
+      .where('cartId = :cartId', { cartId })
+      .execute();
   }
 }

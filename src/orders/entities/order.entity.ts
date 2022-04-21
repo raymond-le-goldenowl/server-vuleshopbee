@@ -47,7 +47,9 @@ export class Order {
   })
   deleted_at: Date;
 
-  @OneToOne(() => OrderStatusCode, (orderStatusCode) => orderStatusCode.order)
+  @OneToOne(() => OrderStatusCode, (orderStatusCode) => orderStatusCode.order, {
+    eager: true,
+  })
   @JoinColumn()
   orderStatusCode: OrderStatusCode;
 
@@ -55,6 +57,6 @@ export class Order {
   @JoinColumn()
   user: User;
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { eager: true })
   orderItems: OrderItem[];
 }

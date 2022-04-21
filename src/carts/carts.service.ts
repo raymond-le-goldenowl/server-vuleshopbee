@@ -1,3 +1,4 @@
+import { UpdateCartDto } from './dto/update-cart.dto';
 import {
   Injectable,
   BadRequestException,
@@ -87,5 +88,21 @@ export class CartsService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async resetCart(id: string) {
+    let cartSaved: Cart;
+    try {
+      const cart = await this.findOne(id, true);
+      if (!cart) throw new NotFoundException();
+      cart.accept_guaratee_policy = false;
+      cart.cartItem = null;
+
+      cartSaved = await this.cartsRepository.save(cart);
+    } catch (error) {
+      throw error;
+    }
+
+    return cartSaved;
   }
 }

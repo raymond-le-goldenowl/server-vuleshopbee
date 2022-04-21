@@ -4,6 +4,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { Reflector } from '@nestjs/core';
@@ -44,7 +45,11 @@ export class RolesGuard implements CanActivate {
       const decodedToken = this.jwtService.decode(token) as User;
       if (!decodedToken) throw new BadRequestException();
 
+      console.table(decodedToken);
       const userToUpdate = await this.usersRepository.findOne(decodedToken.id);
+
+      if (!userToUpdate) throw new NotFoundException();
+
       userToUpdate.is_active = false;
       await this.usersRepository.save(userToUpdate);
 

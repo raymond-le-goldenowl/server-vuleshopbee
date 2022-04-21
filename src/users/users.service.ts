@@ -62,7 +62,6 @@ export class UsersService {
       throw new BadRequestException();
     }
 
-    console.log(email, auth_type);
     try {
       userByEmailAndAuthType = await this.usersRepository.findOne({
         where: { email, auth_type },
@@ -75,11 +74,17 @@ export class UsersService {
       return false;
     }
 
-    console.log('userByEmailAndAuthType => ', userByEmailAndAuthType);
     return trimSingleObjectValue(userByEmailAndAuthType) as User;
   }
 
-  signToken(payload: object) {
+  signToken(user: User) {
+    if (!user) throw new BadRequestException();
+    const payload = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    };
     return this.jwtService.sign(
       { ...payload },
       {
