@@ -1,16 +1,26 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
 import { HttpExceptionFilter } from './http-exception.filter';
 
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors();
+  // app.enableCors({
+  //   origin: process.env.FRONTEND_URL,
+  //   credentials: true,
+  // });
+
+  app.enableCors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  });
+
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
 

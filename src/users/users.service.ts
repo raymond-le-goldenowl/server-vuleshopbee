@@ -20,6 +20,7 @@ import { trimSingleObjectValue } from 'src/utils/trim-single-object-value';
 import { CartsService } from 'src/carts/carts.service';
 import { CreateCartDto } from 'src/carts/dto/create-cart.dto';
 import { Cart } from 'src/carts/entities/cart.entity';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
 export class UsersService {
@@ -28,6 +29,7 @@ export class UsersService {
     private jwtService: JwtService,
     private roleService: RolesService,
     private cartsService: CartsService,
+    private stripeService: StripeService,
   ) {}
 
   async getUserByEmail(email: string): Promise<User | any> {
@@ -114,11 +116,18 @@ export class UsersService {
       const hashedPassword = bcrypt.hashSync(password, salt);
       signUpDto.password = hashedPassword;
 
+      // create customer
+      const stripeCustomer = await this.stripeService.createCustomer(
+        signUpDto.username,
+        signUpDto.email,
+      );
+
       // create and save username, password, email.
       userSaved = await this.usersRepository.save({
         ...signUpDto,
         role,
         cart,
+        stripeCustomerId: stripeCustomer.id,
       });
     } catch (error) {
       throw error;
@@ -127,6 +136,13 @@ export class UsersService {
     delete userSaved.password;
     const accessToken = this.signToken(userSaved);
     return { user: userSaved, accessToken };
+
+    // const newUser = await this.usersRepository.create({
+    //   ...userData,
+    //   stripeCustomerId: stripeCustomer.id,
+    // });
+    // await this.usersRepository.save(newUser);
+    // return newUser;
   }
 
   async signin(signInDto: SignInDto) {

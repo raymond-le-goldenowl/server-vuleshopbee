@@ -1,4 +1,5 @@
 import { join } from 'path';
+import * as Joi from '@hapi/joi';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
@@ -32,6 +33,7 @@ import { OrderItemModule } from './order_item/order_item.module';
 import { BroadcastsModule } from './broadcasts/broadcasts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { OrderStatusCodeModule } from './order_status_code/order_status_code.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -68,6 +70,7 @@ import { OrderStatusCodeModule } from './order_status_code/order_status_code.mod
     BroadcastsModule,
     CategoriesModule,
     OrderStatusCodeModule,
+    StripeModule,
   ],
   controllers: [],
   providers: [],

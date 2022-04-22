@@ -24,6 +24,9 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column()
+  public stripeCustomerId: string;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   full_name: string;
 

@@ -13,6 +13,7 @@ import { RolesModule } from 'src/roles/roles.module';
 import { FacebookStrategy } from './strategy/facebook.strategy';
 import { GoogleStrategy } from './strategy/google.strategy';
 import { CartsModule } from 'src/carts/carts.module';
+import { StripeModule } from 'src/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CartsModule } from 'src/carts/carts.module';
     }),
     RolesModule,
     CartsModule,
+    StripeModule,
   ],
   controllers: [UsersController],
   providers: [
