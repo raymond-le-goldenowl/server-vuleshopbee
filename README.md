@@ -11,6 +11,17 @@
 $ npm install
 ```
 
+## Connect database
+
+- Use **Postgres** to create a database with name is **vuleshopbee**
+- Set `synchronize = true` in ormconfig.ts at root folder and update username, password, port
+- Insert values for `roles` table
+
+  | Table `Roles` | text  | value |
+  | ------------- | :---: | :---: |
+  | row 1         | user  | user  |
+  | row 2         | admin | admin |
+
 ## Running the app
 
 ```bash
