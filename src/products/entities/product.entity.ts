@@ -105,7 +105,7 @@ export class Product {
   @ManyToOne(() => Discount, (discount) => discount.product)
   discounts: Discount[];
 
-  @OneToMany(() => Tag, (tag) => tag.product)
+  @OneToMany(() => Tag, (tag) => tag.product, { eager: true })
   tags: Tag[];
 
   @OneToOne(() => Wishlist, (wishlist) => wishlist.product)
