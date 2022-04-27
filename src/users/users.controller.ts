@@ -9,6 +9,7 @@ import {
   HttpStatus,
   UploadedFile,
   UseInterceptors,
+  Param,
 } from '@nestjs/common';
 import { join } from 'path';
 import { Observable, of } from 'rxjs';
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from './guards/jwt.guard';
 import { config } from './file-interceptor.config';
 import { Roles } from './decorators/roles.decorator';
 import { GetCurrentUserDecorator } from './decorators/get-user.decorator';
+import { SignInFbDto } from './dto/sigin-fb.dto';
 
 @Controller('users')
 export class UsersController {
@@ -39,28 +41,16 @@ export class UsersController {
     return this.usersService.signin(signInDto);
   }
 
-  @Get('/facebook')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLogin(): Promise<any> {
-    return HttpStatus.OK;
+  @Post('/facebook')
+  // @UseGuards(AuthGuard('facebook'))
+  async facebookLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
+    return this.usersService.createResDataFacebookLogin(signInFbDto);
   }
 
-  @Get('/facebook/redirect')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLoginRedirect(@Req() req): Promise<any> {
-    return this.usersService.createResDataFacebookLogin(req?.user);
-  }
-
-  @Get('/google')
-  @UseGuards(AuthGuard('google'))
-  async googleLogin(): Promise<any> {
-    return HttpStatus.OK;
-  }
-
-  @Get('/google/redirect')
-  @UseGuards(AuthGuard('google'))
-  async googleLoginRedirect(@Req() req): Promise<any> {
-    return this.usersService.createResDataGoogleLogin(req?.user);
+  @Post('/google')
+  // @UseGuards(AuthGuard('google'))
+  async googleLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
+    return this.usersService.createResDataGoogleLogin(signInFbDto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -78,6 +68,13 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/profile')
+  @Roles(Role.Admin, Role.User)
+  getProfile(@GetCurrentUserDecorator() user) {
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/profile/image')
   @Roles(Role.Admin, Role.User)
   @UseInterceptors(FileInterceptor(config.fieldName, config.localOptions))
@@ -85,12 +82,13 @@ export class UsersController {
     return this.usersService.updateImage(user, image);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/image/avatar')
-  @Roles(Role.Admin, Role.User)
-  getUserAvatar(@Res() res, @GetCurrentUserDecorator() user): Observable<any> {
+  @Get('/image/avatar/:imageName')
+  getUserAvatar(
+    @Res() res,
+    @Param('imageName') imageName: string,
+  ): Observable<any> {
     return of(
-      res.sendFile(join(process.cwd(), 'uploads/avatars/' + user.avatar)),
+      res.sendFile(join(process.cwd(), 'uploads/avatars/' + imageName)),
     );
   }
 

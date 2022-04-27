@@ -10,12 +10,15 @@ import {
   Controller,
   UseInterceptors,
   UploadedFile,
+  Res,
 } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { config } from './file-interceptor.config';
+import { Observable, of } from 'rxjs';
+import { join } from 'path';
 
 @Controller('products')
 export class ProductsController {
@@ -54,6 +57,17 @@ export class ProductsController {
 
   @Delete(':id')
   remove(@Param('id') id: string, @Query('remove') remove: boolean) {
+    console.log(id);
     return this.productsService.remove(id, remove);
+  }
+
+  @Get('/image/:imageName')
+  getUProductImage(
+    @Res() res,
+    @Param('imageName') imageName: string,
+  ): Observable<any> {
+    return of(
+      res.sendFile(join(process.cwd(), 'uploads/products/' + imageName)),
+    );
   }
 }

@@ -21,6 +21,7 @@ import { CartsService } from 'src/carts/carts.service';
 import { CreateCartDto } from 'src/carts/dto/create-cart.dto';
 import { Cart } from 'src/carts/entities/cart.entity';
 import { StripeService } from 'src/stripe/stripe.service';
+import { SignInFbDto } from './dto/sigin-fb.dto';
 
 @Injectable()
 export class UsersService {
@@ -86,6 +87,7 @@ export class UsersService {
       username: user.username,
       email: user.email,
       role: user.role,
+      provider: user.auth_type,
     };
     return this.jwtService.sign(
       { ...payload },
@@ -269,34 +271,42 @@ export class UsersService {
     return userByEmail;
   }
 
-  async createResDataFacebookLogin(user: any) {
+  async createResDataFacebookLogin(user: SignInFbDto) {
     if (!user) {
       throw new BadRequestException();
     }
 
     let userSaved: User;
 
-    const email = user?.email;
+    const email = user.email;
     const userByEmailAndAuthType = await this.getUserByEmailAndAuthType(
       email,
-      user?.provider,
+      user.provider,
     );
 
     if (!userByEmailAndAuthType) {
       try {
         const cart = await this.createCartForUser();
         const role = await this.roleService.findOneByText('user', true);
+
+        // create customer
+        const stripeCustomer = await this.stripeService.createCustomer(
+          user.id,
+          user.email,
+        );
+
         // create and save username, password, email.
         userSaved = await this.usersRepository.save({
           email,
           username: user.id,
           password: null,
-          avatar: user.picture,
+          avatar: user?.picture,
           full_name: user.displayName,
           user_facebook_id: user.id,
           auth_type: user.provider,
           role,
           cart,
+          stripeCustomerId: stripeCustomer.id,
         });
 
         delete userSaved.password;
@@ -312,7 +322,7 @@ export class UsersService {
     return { user: userByEmailAndAuthType, accessToken };
   }
 
-  async createResDataGoogleLogin(user: any) {
+  async createResDataGoogleLogin(user: SignInFbDto) {
     if (!user) {
       throw new BadRequestException();
     }
@@ -329,15 +339,25 @@ export class UsersService {
       try {
         const cart = await this.createCartForUser();
         const role = await this.roleService.findOneByText('user', true);
+
+        // create customer
+        const stripeCustomer = await this.stripeService.createCustomer(
+          user.id,
+          user.email,
+        );
+
         // create and save username, password, email.
         userSaved = await this.usersRepository.save({
           email,
           username: user.id,
+          avatar: user.picture,
+          full_name: user.displayName,
           password: null,
           user_google_id: user.id,
           auth_type: user.provider,
           role,
           cart,
+          stripeCustomerId: stripeCustomer.id,
         });
 
         delete userSaved.password;

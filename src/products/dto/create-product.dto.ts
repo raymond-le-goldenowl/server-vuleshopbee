@@ -11,7 +11,7 @@ export class CreateProductDto {
   platform!: string;
 
   status: boolean;
-  sale_of: number;
+  // sale_of: number;
 
   variant_id!: string;
   variant_title!: string;

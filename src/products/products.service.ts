@@ -10,6 +10,7 @@ import { ProductsRepository } from './products.repository';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CategoriesService } from 'src/categories/categories.service';
+import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
@@ -20,52 +21,57 @@ export class ProductsService {
   ) {}
 
   async create(image: any, createProductDto: CreateProductDto) {
-    const {
-      name,
-      model,
-      original_price,
-      price,
-      tutorial,
-      description,
-      platform,
-      status,
-      sale_of,
-      variant_id,
-      variant_title,
-      variant_text,
-      additional_information,
-      amount,
-      category_id,
-    } = createProductDto;
+    let productSaved: Product;
+    try {
+      const {
+        name,
+        model,
+        price,
+        original_price,
+        tutorial,
+        description,
+        platform,
+        status,
+        variant_id,
+        variant_title,
+        variant_text,
+        additional_information,
+        amount,
+        category_id,
+      } = createProductDto;
 
-    if (!image?.filename) {
-      throw new BadRequestException();
-    }
+      if (!image?.filename) {
+        throw new BadRequestException('File not found');
+      }
 
-    const slug = name.split(' ').join('-');
-    const category = await this.categoriesService.findOne(category_id);
-    const productSaved = await this.productsRepository.save({
-      name,
-      model,
-      original_price,
-      price,
-      slug: slug,
-      image: image?.filename,
-      tutorial,
-      description,
-      platform,
-      status,
-      sale_of,
-      variant_id,
-      variant_title,
-      variant_text,
-      additional_information,
-      amount,
-      category,
-    });
+      const slug = name.split(' ').join('-');
+      const category = await this.categoriesService.findOne(category_id);
 
-    if (!productSaved) {
-      throw new BadRequestException();
+      productSaved = await this.productsRepository.save({
+        name,
+        model,
+        original_price,
+        price,
+        slug: slug,
+        image: image?.filename,
+        tutorial,
+        description,
+        platform,
+        status,
+        variant_id,
+        variant_title,
+        variant_text,
+        additional_information,
+        amount,
+        category,
+      });
+
+      if (!productSaved) {
+        throw new BadRequestException();
+      }
+    } catch (error) {
+      console.log(error);
+      return error;
     }
 
     return productSaved;
@@ -156,7 +162,13 @@ export class ProductsService {
     builder.skip((page - 1) * perPage).take(perPage);
 
     // return data
-    return await builder.getMany();
+    const products = await builder.getMany();
+
+    return {
+      page,
+      perPage,
+      products,
+    };
   }
 
   async findOne(id: string) {
@@ -186,7 +198,7 @@ export class ProductsService {
     product.description = updateProductDto.description;
     product.platform = updateProductDto.platform;
     product.status = updateProductDto.status;
-    product.sale_of = updateProductDto.sale_of;
+    // product.sale_of = updateProductDto.sale_of;
     product.variant_id = updateProductDto.variant_id;
     product.variant_title = updateProductDto.variant_title;
     product.variant_text = updateProductDto.variant_text;
@@ -206,9 +218,9 @@ export class ProductsService {
     }
 
     if (remove) {
-      await this.productsRepository.delete(product);
+      await this.productsRepository.delete(product.id);
     } else {
-      await this.productsRepository.softDelete(product);
+      await this.productsRepository.softDelete(product.id);
     }
   }
 }

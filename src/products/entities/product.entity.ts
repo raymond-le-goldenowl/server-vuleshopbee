@@ -58,8 +58,8 @@ export class Product {
   @Column({ type: 'boolean' })
   status: boolean;
 
-  @Column({ type: 'integer' })
-  sale_of: number;
+  // @Column({ type: 'integer', default: 0 })
+  // sale_of: number;
 
   @Column({ type: 'uuid', nullable: true })
   variant_id: string;
