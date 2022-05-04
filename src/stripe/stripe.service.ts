@@ -36,10 +36,22 @@ export class StripeService {
 
       customer: user.stripeCustomerId,
 
-      success_url: `${process.env.FRONTEND_URL}/checkout/success-checkout`,
-      cancel_url: `${process.env.FRONTEND_URL}/checkout/canel-checkout`,
+      success_url: `${process.env.FRONTEND_URL}/cart/success`,
+      cancel_url: `${process.env.FRONTEND_URL}/cart`,
     });
 
     return { checkoutSessions };
+  }
+
+  async retrievePaymentIntent(clientSecret: string) {
+    const session = this.stripe.checkout.sessions.retrieve(clientSecret);
+
+    return session;
+  }
+
+  // not used.
+  async retrieveListLineItems(clientSecret: string) {
+    const session = this.stripe.checkout.sessions.listLineItems(clientSecret);
+    return session;
   }
 }

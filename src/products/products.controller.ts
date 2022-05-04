@@ -57,7 +57,6 @@ export class ProductsController {
 
   @Delete(':id')
   remove(@Param('id') id: string, @Query('remove') remove: boolean) {
-    console.log(id);
     return this.productsService.remove(id, remove);
   }
 

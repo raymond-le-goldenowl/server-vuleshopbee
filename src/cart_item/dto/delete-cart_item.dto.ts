@@ -1,8 +1,8 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class CreateCartItemDto {
+export class DeleteCartItemDto {
   @IsNotEmpty()
-  quantity: number;
+  remove: boolean;
 
   @IsString()
   @IsNotEmpty()

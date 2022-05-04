@@ -8,6 +8,7 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
+import { GetCurrentUserDecorator } from 'src/users/decorators/get-user.decorator';
 import { Roles } from 'src/users/decorators/roles.decorator';
 import { Role } from 'src/users/enums/role.enum';
 import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
@@ -34,6 +35,13 @@ export class CartsController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(Role.User)
+  @Get('/one')
+  findOneCartByAccessToken(@GetCurrentUserDecorator() user) {
+    return this.cartsService.findOneCartByAccessToken(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.User)
   @Get(':id')
   findOne(
     @Param('id') id: string,
@@ -52,5 +60,13 @@ export class CartsController {
     @Query('remove') remove: boolean,
   ) {
     return this.cartsService.remove(id, remove);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
+  @Post('/reset-cart')
+  resetCart(@GetCurrentUserDecorator() user) {
+    const cartId = user.cart.id || null;
+    return this.cartsService.resetCart(cartId);
   }
 }

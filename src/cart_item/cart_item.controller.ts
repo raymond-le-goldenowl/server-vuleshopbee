@@ -8,12 +8,16 @@ import {
   Delete,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import { GetCurrentUserDecorator } from 'src/users/decorators/get-user.decorator';
 import { Roles } from 'src/users/decorators/roles.decorator';
+import { User } from 'src/users/entities/user.entity';
 import { Role } from 'src/users/enums/role.enum';
 import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
 import { CartItemService } from './cart_item.service';
 import { CreateCartItemDto } from './dto/create-cart_item.dto';
+import { DeleteCartItemDto } from './dto/delete-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
 
 @Controller('cart-item')
@@ -23,12 +27,8 @@ export class CartItemController {
   @UseGuards(JwtAuthGuard)
   @Roles(Role.User)
   @Post()
-  create(
-    @Body() createCartItemDto: CreateCartItemDto,
-    @Body('cartId') cartId: string,
-    @Body('productId') productId: string,
-  ) {
-    return this.cartItemService.create(createCartItemDto, cartId, productId);
+  create(@Body() createCartItemDto: CreateCartItemDto) {
+    return this.cartItemService.create(createCartItemDto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -60,26 +60,31 @@ export class CartItemController {
   update(
     @Param('id') id: string,
     @Body() updateCartItemDto: UpdateCartItemDto,
-    @Body('cartId') cartId: string,
-    @Body('productId') productId: string,
   ) {
-    return this.cartItemService.updateQuantityOfItem(
-      id,
-      updateCartItemDto,
-      cartId,
-      productId,
-    );
+    return this.cartItemService.updateQuantityOfItem(id, updateCartItemDto);
   }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Roles(Role.User)
+  // @Delete(':id')
+  // deleteCartItemsByCartId(
+  //   @Req() req,
+  //   @Param('id') id: string,
+  //   @Query() deleteCartItemDto: DeleteCartItemDto,
+  // ) {
+  //   return this.cartItemService.remove(
+  //     id,
+  //     deleteCartItemDto.remove,
+  //     deleteCartItemDto.cartId,
+  //     deleteCartItemDto.productId,
+  //   );
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Roles(Role.User)
-  @Delete(':id')
-  deleteCartItemsByCartId(
-    @Param('id') id: string,
-    @Query('remove') remove: boolean,
-    @Body('cartId') cartId: string,
-    @Body('productId') productId: string,
-  ) {
-    return this.cartItemService.remove(id, remove, cartId, productId);
+  @Delete('/remove')
+  deleteCartItemsByCartId(@GetCurrentUserDecorator() user: User) {
+    const cartId = user.cart.id || null;
+    return this.cartItemService.removeCartItemByCartId(cartId);
   }
 }

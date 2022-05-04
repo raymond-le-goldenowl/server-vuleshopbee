@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CartsRepository } from './carts.repository';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { Cart } from './entities/cart.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class CartsService {
@@ -50,6 +51,22 @@ export class CartsService {
     }
 
     return carts;
+  }
+
+  async findOneCartByAccessToken(user: User): Promise<Cart> {
+    let cart: Cart;
+    try {
+      cart = await this.cartsRepository.findOne({
+        withDeleted: true,
+        relations: ['cartItem'],
+        where: { id: user.cart.id },
+      });
+      if (!cart) throw new NotFoundException();
+    } catch (error) {
+      throw error;
+    }
+
+    return cart;
   }
 
   async findOne(id: string, withDeleted: boolean): Promise<Cart> {

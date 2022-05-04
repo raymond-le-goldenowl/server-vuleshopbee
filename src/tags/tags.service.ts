@@ -17,7 +17,9 @@ export class TagsService {
   ) {}
 
   async create(createTagDto: CreateTagDto) {
-    const product = await this.productsService.findOne(createTagDto.product_id);
+    const product = await (
+      await this.productsService.findOne(createTagDto.product_id)
+    ).product;
     const saved = await this.tagsRepository.save({
       text: createTagDto.text,
       product,
@@ -56,7 +58,9 @@ export class TagsService {
   }
 
   async update(id: string, updateTagDto: UpdateTagDto) {
-    const product = await this.productsService.findOne(updateTagDto.product_id);
+    const product = await (
+      await this.productsService.findOne(updateTagDto.product_id)
+    ).product;
     const tag = await this.tagsRepository.findOne(id);
 
     if (!tag) {

@@ -20,15 +20,14 @@ export class CartItemService {
     private productsService: ProductsService,
   ) {}
 
-  async create(
-    createCartItemDto: CreateCartItemDto,
-    cartId: string,
-    productId: string,
-  ) {
+  async create(createCartItemDto: CreateCartItemDto) {
+    const { cartId, productId, quantity } = createCartItemDto;
     let cartItemSaved;
     try {
       const cart = await this.cartsService.findOne(cartId, true);
-      const product = await this.productsService.findOne(productId);
+      const product = await (
+        await this.productsService.findOne(productId)
+      ).product;
 
       const findProductIsExists = await this.cartItemRepository.findOne({
         where: {
@@ -38,14 +37,11 @@ export class CartItemService {
 
       // if exists product in cart, will be update quantity
       if (findProductIsExists) {
-        return await this.updateQuantityOfItem(
-          findProductIsExists.id,
-          {
-            quantity: createCartItemDto.quantity,
-          },
+        return await this.updateQuantityOfItem(findProductIsExists.id, {
+          quantity,
           cartId,
           productId,
-        );
+        });
       } else {
         const cartItem = await this.cartItemRepository.create({
           ...createCartItemDto,
@@ -68,7 +64,9 @@ export class CartItemService {
 
     try {
       const cart = await this.cartsService.findOne(cartId, true);
-      const product = await this.productsService.findOne(productId);
+      const product = await (
+        await this.productsService.findOne(productId)
+      ).product;
 
       if (withDeleted) {
         cartItems = await this.cartItemRepository.find({
@@ -101,7 +99,9 @@ export class CartItemService {
 
     try {
       const cart = await this.cartsService.findOne(cartId, true);
-      const product = await this.productsService.findOne(productId);
+      const product = await (
+        await this.productsService.findOne(productId)
+      ).product;
 
       if (withDeleted) {
         cartItem = await this.cartItemRepository.findOne({
@@ -119,29 +119,27 @@ export class CartItemService {
       throw error;
     }
 
-    if (!cartItem) throw new NotFoundException();
-
     return cartItem;
   }
 
-  async updateQuantityOfItem(
-    id: string,
-    updateCartItemDto: UpdateCartItemDto,
-    cartId: string,
-    productId: string,
-  ) {
+  async updateQuantityOfItem(id: string, updateCartItemDto: UpdateCartItemDto) {
     let cartItemUpdated: CartItem;
 
+    const { cartId, productId } = updateCartItemDto;
     try {
       let cartItem = await this.findOne(id, true, cartId, productId);
+
       const cart = await this.cartsService.findOne(cartId, true);
-      const product = await this.productsService.findOne(productId);
+      const product = await (
+        await this.productsService.findOne(productId)
+      ).product;
 
       if (!updateCartItemDto.quantity) {
         updateCartItemDto.quantity = Number(cartItem.quantity) + 1;
       } else {
-        updateCartItemDto.quantity =
-          Number(cartItem.quantity) + Number(updateCartItemDto.quantity);
+        // updateCartItemDto.quantity =
+        // Number(cartItem.quantity) + Number(updateCartItemDto.quantity);
+        updateCartItemDto.quantity = Number(updateCartItemDto.quantity);
       }
       cartItem = { ...cartItem, ...updateCartItemDto, cart, product };
       cartItemUpdated = await this.cartItemRepository.save(cartItem);
@@ -168,11 +166,13 @@ export class CartItemService {
   }
 
   async removeCartItemByCartId(cartId: string) {
-    return await this.cartItemRepository
+    const removed = await this.cartItemRepository
       .createQueryBuilder('cart_item')
       .delete()
       .from(CartItem)
       .where('cartId = :cartId', { cartId })
       .execute();
+
+    return { removedCount: removed.affected };
   }
 }

@@ -70,7 +70,6 @@ export class ProductsService {
         throw new BadRequestException();
       }
     } catch (error) {
-      console.log(error);
       return error;
     }
 
@@ -104,6 +103,14 @@ export class ProductsService {
         .andWhere('tag.text LIKE :tag', {
           tag: `%${tag}%`,
         });
+    }
+
+    // join with tag.
+    if (query?.search) {
+      const searchValue = query?.search;
+      builder.andWhere('LOWER(product.name) LIKE LOWER(:searchValue)', {
+        searchValue: `%${searchValue}%`,
+      });
     }
 
     // Filter range price
@@ -173,11 +180,19 @@ export class ProductsService {
 
   async findOne(id: string) {
     const product = await this.productsRepository.findOne(id);
-    return product;
+    const productsByVariantId = await this.productsRepository.find({
+      where: {
+        variant_id: product.variant_id,
+      },
+    });
+    return {
+      product: product,
+      productsByVariantId,
+    };
   }
 
   async update(image, id: string, updateProductDto: UpdateProductDto) {
-    const product = await this.findOne(id);
+    const product = await (await this.findOne(id)).product;
     const categoryId = updateProductDto.category_id;
     const category = await this.categoriesService.findOne(categoryId);
 
@@ -212,7 +227,7 @@ export class ProductsService {
   }
 
   async remove(id: string, remove: boolean) {
-    const product = await this.findOne(id);
+    const product = await (await this.findOne(id)).product;
     if (!product) {
       throw new NotFoundException();
     }
