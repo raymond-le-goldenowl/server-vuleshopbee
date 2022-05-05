@@ -23,6 +23,9 @@ export class Order {
   @Column({ type: 'integer' })
   total: number;
 
+  @Column({ type: 'integer' })
+  amount: number;
+
   @Column({ type: 'varchar', length: 255 })
   description: string;
 

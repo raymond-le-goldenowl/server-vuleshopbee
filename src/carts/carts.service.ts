@@ -96,7 +96,6 @@ export class CartsService {
   async remove(id: string, remove: boolean) {
     try {
       const cart = await this.findOne(id, true);
-
       if (remove) {
         await this.cartsRepository.delete(cart.id);
       } else {
@@ -112,6 +111,7 @@ export class CartsService {
     try {
       const cart = await this.findOne(id, true);
       if (!cart) throw new NotFoundException();
+
       cart.accept_guaratee_policy = false;
       cart.cartItem = null;
 

@@ -117,6 +117,6 @@ export class Product {
   @OneToOne(() => CartItem, (cartItem) => cartItem.product)
   cartItem: CartItem;
 
-  @OneToOne(() => OrderItem, (orderItem) => orderItem.product)
-  orderItem: OrderItem;
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItems: OrderItem[];
 }

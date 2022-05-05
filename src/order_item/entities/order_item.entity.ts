@@ -21,6 +21,15 @@ export class OrderItem {
   @Column({ type: 'boolean', default: false })
   accept_guarantee_policy: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  product_name: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  product_price: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  product_image: string;
+
   @Column({ type: 'integer' })
   quantity: number;
 
@@ -45,7 +54,7 @@ export class OrderItem {
   })
   deleted_at: Date;
 
-  @OneToOne(() => Product, (product) => product.orderItem)
+  @ManyToOne(() => Product, (product) => product.orderItems)
   @JoinColumn()
   product: Product;
 

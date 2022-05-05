@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -29,30 +30,48 @@ export class OrdersService {
     let orderFound: Order;
 
     try {
+      console.log(11);
       const cart: Cart = user.cart;
+      console.log(222);
       const cartItem: CartItem[] = cart.cartItem;
+      console.log(333);
 
-      let total = 0;
-      cartItem.forEach((item) => {
-        total += item.quantity;
-      });
+      const total = cartItem.reduce((pre, curr) => pre + curr.quantity, 0);
+      console.log(444);
+      const amount = cartItem.reduce(
+        (pre, curr) => pre + curr.product.price,
+        0,
+      );
+      console.log(55555);
+      // const order = this.ordersRepository.create();
 
-      const order = this.ordersRepository.create({
+      // const found = await this.ordersRepository.findOne(order.id);
+
+      // console.log(found);
+      // if (found) {
+      //   throw new ConflictException();
+      // }
+
+      console.log(6666666);
+      // return order and list of order item
+      const orderSaved = await this.ordersRepository.save({
         ...createOrderDto,
         total,
+        amount,
         user,
       });
-
-      // return order and list of order item
-      const orderSaved = await this.ordersRepository.save(order);
+      console.log(77777);
       if (!orderSaved) throw new BadRequestException();
-      await this.orderItemService.createOrderItem(order, cartItem);
+      console.log(8888);
+      await this.orderItemService.createOrderItem(orderSaved, cartItem);
+      console.log(9999);
       orderFound = await this.findOne(orderSaved.id, true);
-
+      console.log(1000);
       if (!orderFound) throw new NotFoundException();
       await this.cartItemService.removeCartItemByCartId(cart.id);
       await this.cartsService.resetCart(cart.id);
     } catch (error) {
+      console.log(error);
       throw error;
     }
 
@@ -97,13 +116,13 @@ export class OrdersService {
     try {
       if (withDelete) {
         found = await this.ordersRepository.findOne({
-          relations: ['orderItems'],
+          relations: ['orderItems', 'orderItems.product'],
           where: { id },
           withDeleted: true,
         });
       } else {
         found = await this.ordersRepository.findOne({
-          relations: ['orderItems'],
+          relations: ['orderItems', 'orderItems.product'],
           where: { id },
         });
       }

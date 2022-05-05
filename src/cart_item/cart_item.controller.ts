@@ -64,27 +64,27 @@ export class CartItemController {
     return this.cartItemService.updateQuantityOfItem(id, updateCartItemDto);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Roles(Role.User)
-  // @Delete(':id')
-  // deleteCartItemsByCartId(
-  //   @Req() req,
-  //   @Param('id') id: string,
-  //   @Query() deleteCartItemDto: DeleteCartItemDto,
-  // ) {
-  //   return this.cartItemService.remove(
-  //     id,
-  //     deleteCartItemDto.remove,
-  //     deleteCartItemDto.cartId,
-  //     deleteCartItemDto.productId,
-  //   );
-  // }
-
   @UseGuards(JwtAuthGuard)
   @Roles(Role.User)
   @Delete('/remove')
   deleteCartItemsByCartId(@GetCurrentUserDecorator() user: User) {
     const cartId = user.cart.id || null;
     return this.cartItemService.removeCartItemByCartId(cartId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.User)
+  @Delete(':id')
+  delete(
+    @Req() req,
+    @Param('id') id: string,
+    @Query() deleteCartItemDto: DeleteCartItemDto,
+  ) {
+    return this.cartItemService.remove(
+      id,
+      deleteCartItemDto.remove,
+      deleteCartItemDto.cartId,
+      deleteCartItemDto.productId,
+    );
   }
 }

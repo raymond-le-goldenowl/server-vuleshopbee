@@ -38,7 +38,7 @@ export class CartItemService {
       // if exists product in cart, will be update quantity
       if (findProductIsExists) {
         return await this.updateQuantityOfItem(findProductIsExists.id, {
-          quantity,
+          quantity: findProductIsExists.quantity + quantity,
           cartId,
           productId,
         });
