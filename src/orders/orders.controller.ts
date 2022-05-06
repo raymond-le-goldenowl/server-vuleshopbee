@@ -35,8 +35,15 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   @Roles(Role.User)
   @Get()
-  findAll(@Query() query, @GetCurrentUserDecorator() user: User) {
-    return this.ordersService.findAll(query, user);
+  findAll(@GetCurrentUserDecorator() user: User) {
+    return this.ordersService.findAll(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.User)
+  @Get('/filter')
+  filter(@Query() query, @GetCurrentUserDecorator() user: User) {
+    return this.ordersService.filter(query, user);
   }
 
   @UseGuards(JwtAuthGuard)

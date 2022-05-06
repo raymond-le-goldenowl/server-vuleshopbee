@@ -134,11 +134,9 @@ export class CartItemService {
         await this.productsService.findOne(productId)
       ).product;
 
-      if (!updateCartItemDto.quantity) {
+      if (updateCartItemDto.quantity !== 0 && !updateCartItemDto.quantity) {
         updateCartItemDto.quantity = Number(cartItem.quantity) + 1;
       } else {
-        // updateCartItemDto.quantity =
-        // Number(cartItem.quantity) + Number(updateCartItemDto.quantity);
         updateCartItemDto.quantity = Number(updateCartItemDto.quantity);
       }
       cartItem = { ...cartItem, ...updateCartItemDto, cart, product };

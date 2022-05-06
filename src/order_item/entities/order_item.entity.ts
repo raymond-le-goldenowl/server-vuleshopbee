@@ -24,8 +24,8 @@ export class OrderItem {
   @Column({ type: 'varchar', nullable: true })
   product_name: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  product_price: string;
+  @Column({ type: 'integer', nullable: true })
+  product_price: number;
 
   @Column({ type: 'varchar', nullable: true })
   product_image: string;

@@ -10,6 +10,7 @@ import { Cart } from 'src/carts/entities/cart.entity';
 import { CartItemService } from 'src/cart_item/cart_item.service';
 import { CartItem } from 'src/cart_item/entities/cart_item.entity';
 import { Order } from 'src/orders/entities/order.entity';
+import { ProductsService } from 'src/products/products.service';
 import { User } from 'src/users/entities/user.entity';
 import { OrderItemService } from './../order_item/order_item.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -30,29 +31,16 @@ export class OrdersService {
     let orderFound: Order;
 
     try {
-      console.log(11);
       const cart: Cart = user.cart;
-      console.log(222);
-      const cartItem: CartItem[] = cart.cartItem;
-      console.log(333);
+      const cartItem: CartItem[] = cart.cartItem.filter(
+        (item: CartItem) => item.quantity !== 0,
+      );
 
       const total = cartItem.reduce((pre, curr) => pre + curr.quantity, 0);
-      console.log(444);
       const amount = cartItem.reduce(
-        (pre, curr) => pre + curr.product.price,
+        (pre, curr) => pre + curr.product.price * curr.quantity,
         0,
       );
-      console.log(55555);
-      // const order = this.ordersRepository.create();
-
-      // const found = await this.ordersRepository.findOne(order.id);
-
-      // console.log(found);
-      // if (found) {
-      //   throw new ConflictException();
-      // }
-
-      console.log(6666666);
       // return order and list of order item
       const orderSaved = await this.ordersRepository.save({
         ...createOrderDto,
@@ -60,25 +48,31 @@ export class OrdersService {
         amount,
         user,
       });
-      console.log(77777);
       if (!orderSaved) throw new BadRequestException();
-      console.log(8888);
       await this.orderItemService.createOrderItem(orderSaved, cartItem);
-      console.log(9999);
       orderFound = await this.findOne(orderSaved.id, true);
-      console.log(1000);
       if (!orderFound) throw new NotFoundException();
       await this.cartItemService.removeCartItemByCartId(cart.id);
       await this.cartsService.resetCart(cart.id);
     } catch (error) {
-      console.log(error);
       throw error;
     }
 
     return orderFound;
   }
 
-  async findAll(query, user: User) {
+  async findAll(user: User) {
+    // create builder.
+    const orders = await this.ordersRepository.find({
+      where: {
+        user,
+      },
+    });
+
+    return orders;
+  }
+
+  async filter(query, user: User) {
     // create builder.
     const builder = await this.ordersRepository.createQueryBuilder('order');
 

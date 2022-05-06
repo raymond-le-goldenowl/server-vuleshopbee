@@ -20,10 +20,9 @@ export class StripeService {
   }
 
   async checkoutSessions(user: User) {
-    const checkoutSessions = await this.stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: 'payment',
-      line_items: user.cart.cartItem.map((item) => ({
+    const items = user.cart.cartItem.map((item) => {
+      if (item.quantity === 0) return;
+      return {
         price_data: {
           currency: 'vnd',
           product_data: {
@@ -32,12 +31,16 @@ export class StripeService {
           unit_amount: item.product.price,
         },
         quantity: Number(item.quantity),
-      })),
+      };
+    });
 
+    const checkoutSessions = await this.stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: items,
       customer: user.stripeCustomerId,
-
-      success_url: `${process.env.FRONTEND_URL}/cart/success`,
-      cancel_url: `${process.env.FRONTEND_URL}/cart`,
+      success_url: `${process.env.FRONTEND_URL}/account/cart/success`,
+      cancel_url: `${process.env.FRONTEND_URL}/account/cart/cancel`,
     });
 
     return { checkoutSessions };

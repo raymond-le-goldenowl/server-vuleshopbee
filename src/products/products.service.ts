@@ -226,6 +226,23 @@ export class ProductsService {
     return productSaved;
   }
 
+  async reduceTheNumberOfProducts(id: string, quantity: number) {
+    try {
+      const product = await (await this.findOne(id)).product;
+      if (!product) {
+        throw new NotFoundException();
+      }
+      if (product.amount >= quantity) {
+        product.amount = product.amount - quantity;
+        await this.productsRepository.save(product);
+      } else {
+        return false;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async remove(id: string, remove: boolean) {
     const product = await (await this.findOne(id)).product;
     if (!product) {
