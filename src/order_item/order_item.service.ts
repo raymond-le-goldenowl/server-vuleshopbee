@@ -4,8 +4,6 @@ import { CartItem } from 'src/cart_item/entities/cart_item.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { ProductsService } from 'src/products/products.service';
 import { Connection } from 'typeorm';
-import { CreateOrderItemDto } from './dto/create-order_item.dto';
-import { UpdateOrderItemDto } from './dto/update-order_item.dto';
 import { OrderItemRepository } from './order_item.repository';
 
 @Injectable()

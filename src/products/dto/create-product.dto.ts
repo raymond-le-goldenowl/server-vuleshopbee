@@ -10,14 +10,14 @@ export class CreateProductDto {
   description!: string;
   platform!: string;
 
-  status: boolean;
+  status!: boolean;
   // sale_of: number;
 
   variant_id!: string;
   variant_title!: string;
   variant_text!: string;
 
-  additional_information: string;
+  additional_information!: string;
 
   amount: number;
 

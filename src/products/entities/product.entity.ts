@@ -9,6 +9,7 @@ import {
   DeleteDateColumn,
   PrimaryGeneratedColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 
 import { Tag } from 'src/tags/entities/tag.entity';
@@ -19,6 +20,8 @@ import { Category } from 'src/categories/entities/category.entity';
 import { CartItem } from 'src/cart_item/entities/cart_item.entity';
 import { Promotion } from 'src/promotion/entities/promotion.entity';
 import { OrderItem } from 'src/order_item/entities/order_item.entity';
+import { ProductOption } from 'src/product-options/entities/product-option.entity';
+import { ProductTag } from 'src/product_tag/entities/product_tag.entity';
 
 @Entity()
 export class Product {
@@ -105,8 +108,8 @@ export class Product {
   @ManyToOne(() => Discount, (discount) => discount.product)
   discounts: Discount[];
 
-  @OneToMany(() => Tag, (tag) => tag.product, { eager: true })
-  tags: Tag[];
+  @ManyToMany(() => ProductTag, (tag) => tag.product)
+  productTags: ProductTag[];
 
   @OneToOne(() => Wishlist, (wishlist) => wishlist.product)
   wishlist: Wishlist;
@@ -119,4 +122,10 @@ export class Product {
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
+
+  @ManyToOne(() => ProductOption, (productOption) => productOption.product, {
+    nullable: true,
+    eager: true,
+  })
+  productOptions: ProductOption[];
 }

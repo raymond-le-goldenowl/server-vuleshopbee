@@ -33,6 +33,10 @@ import { BroadcastsModule } from './broadcasts/broadcasts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { OrderStatusCodeModule } from './order_status_code/order_status_code.module';
 import { StripeModule } from './stripe/stripe.module';
+import { ProductOptionsModule } from './product-options/product-options.module';
+import { EmailModule } from './email/email.module';
+import { ProductAccountsModule } from './product_accounts/product_accounts.module';
+import { ProductTagModule } from './product_tag/product_tag.module';
 
 @Module({
   imports: [
@@ -70,6 +74,10 @@ import { StripeModule } from './stripe/stripe.module';
     CategoriesModule,
     OrderStatusCodeModule,
     StripeModule,
+    ProductOptionsModule,
+    EmailModule,
+    ProductAccountsModule,
+    ProductTagModule,
   ],
   controllers: [],
   providers: [],

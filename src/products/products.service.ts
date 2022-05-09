@@ -57,7 +57,7 @@ export class ProductsService {
         tutorial,
         description,
         platform,
-        status,
+        status: status || true,
         variant_id,
         variant_title,
         variant_text,
@@ -179,16 +179,22 @@ export class ProductsService {
   }
 
   async findOne(id: string) {
-    const product = await this.productsRepository.findOne(id);
-    const productsByVariantId = await this.productsRepository.find({
-      where: {
-        variant_id: product.variant_id,
-      },
-    });
-    return {
-      product: product,
-      productsByVariantId,
-    };
+    try {
+      const product = await this.productsRepository.findOne({
+        where: { id },
+      });
+      const productsByVariantId = await this.productsRepository.find({
+        where: {
+          variant_id: product.variant_id,
+        },
+      });
+      return {
+        product: product,
+        productsByVariantId,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async update(image, id: string, updateProductDto: UpdateProductDto) {

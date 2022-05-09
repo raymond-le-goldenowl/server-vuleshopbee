@@ -1,23 +1,24 @@
+import { Product } from 'src/products/entities/product.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
-  ManyToOne,
 } from 'typeorm';
 
-import { ProductTag } from 'src/product_tag/entities/product_tag.entity';
-
 @Entity()
-export class Tag {
+export class ProductOption {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  text: string;
+  @Column({ type: 'char' })
+  username: string;
+
+  @Column({ type: 'char' })
+  password: string;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -37,6 +38,6 @@ export class Tag {
   })
   deleted_at: Date;
 
-  @ManyToOne(() => ProductTag, (productTag) => productTag.tag)
-  productTags: ProductTag[];
+  @OneToMany(() => Product, (product) => product.productOptions)
+  product: Product;
 }
