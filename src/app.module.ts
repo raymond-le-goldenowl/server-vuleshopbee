@@ -31,7 +31,7 @@ import { PromotionModule } from './promotion/promotion.module';
 import { OrderItemModule } from './order_item/order_item.module';
 import { BroadcastsModule } from './broadcasts/broadcasts.module';
 import { CategoriesModule } from './categories/categories.module';
-import { OrderStatusCodeModule } from './order_status_code/order_status_code.module';
+// import { OrderStatusCodeModule } from './order_status_code/order_status_code.module';
 import { StripeModule } from './stripe/stripe.module';
 import { ProductOptionsModule } from './product-options/product-options.module';
 import { EmailModule } from './email/email.module';
@@ -72,7 +72,7 @@ import { ProductTagModule } from './product_tag/product_tag.module';
     OrderItemModule,
     BroadcastsModule,
     CategoriesModule,
-    OrderStatusCodeModule,
+    // OrderStatusCodeModule,
     StripeModule,
     ProductOptionsModule,
     EmailModule,

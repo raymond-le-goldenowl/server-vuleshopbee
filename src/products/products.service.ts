@@ -11,6 +11,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CategoriesService } from 'src/categories/categories.service';
 import { Product } from './entities/product.entity';
+import { ProductAccount } from 'src/product_accounts/entities/product_account.entity';
 
 @Injectable()
 export class ProductsService {
@@ -41,7 +42,7 @@ export class ProductsService {
       } = createProductDto;
 
       if (!image?.filename) {
-        throw new BadRequestException('File not found');
+        throw new BadRequestException('Không tìm thấ tệp');
       }
 
       const slug = name.split(' ').join('-');
@@ -67,7 +68,7 @@ export class ProductsService {
       });
 
       if (!productSaved) {
-        throw new BadRequestException();
+        throw new BadRequestException('Không thể lưu sản phẩm');
       }
     } catch (error) {
       return error;
@@ -203,11 +204,11 @@ export class ProductsService {
     const category = await this.categoriesService.findOne(categoryId);
 
     if (!category) {
-      throw new NotFoundException();
+      throw new NotFoundException('Không tìm thấy loại');
     }
 
     if (!image?.filename) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không tìm thấy tệp');
     }
 
     product.name = updateProductDto.name;
@@ -236,7 +237,7 @@ export class ProductsService {
     try {
       const product = await (await this.findOne(id)).product;
       if (!product) {
-        throw new NotFoundException();
+        throw new NotFoundException('Không tìm thấy sản phẩm');
       }
       if (product.amount >= quantity) {
         product.amount = product.amount - quantity;
@@ -252,7 +253,7 @@ export class ProductsService {
   async remove(id: string, remove: boolean) {
     const product = await (await this.findOne(id)).product;
     if (!product) {
-      throw new NotFoundException();
+      throw new NotFoundException('Không tìm thấy sản phẩm');
     }
 
     if (remove) {

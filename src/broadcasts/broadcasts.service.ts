@@ -110,7 +110,7 @@ export class BroadcastsService {
 
     return {
       status: true,
-      message: 'Delete successfully',
+      message: 'xóa thành công',
     };
   }
 

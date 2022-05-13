@@ -33,7 +33,7 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     if (!request.headers?.authorization) {
-      throw new ForbiddenException();
+      throw new ForbiddenException('Không thể xác thực');
     }
     const token = request.headers.authorization.split(' ')[1];
 
@@ -43,12 +43,12 @@ export class RolesGuard implements CanActivate {
       user = this.jwtService.verify(token);
     } catch (error) {
       const decodedToken = this.jwtService.decode(token) as User;
-      if (!decodedToken) throw new BadRequestException();
+      if (!decodedToken) throw new BadRequestException('Lỗi xác thực token');
 
-      console.table(decodedToken);
       const userToUpdate = await this.usersRepository.findOne(decodedToken.id);
 
-      if (!userToUpdate) throw new NotFoundException();
+      if (!userToUpdate)
+        throw new NotFoundException('Không tìm thấy thông tin người dùng');
 
       userToUpdate.is_active = false;
       await this.usersRepository.save(userToUpdate);
@@ -56,7 +56,8 @@ export class RolesGuard implements CanActivate {
       throw new BadRequestException(error.message);
     }
 
-    if (!user?.role) throw new BadRequestException('No role');
+    if (!user?.role)
+      throw new BadRequestException('Chưa có vai trò người dùng');
 
     const roleValue = user.role.value as Role;
     return requiredRoles.includes(roleValue);

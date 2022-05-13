@@ -28,7 +28,7 @@ export class CartsService {
       throw error;
     }
 
-    if (!cartSaved) throw new BadRequestException();
+    if (!cartSaved) throw new BadRequestException('Không thể tạo giỏ hàng');
 
     return cartSaved;
   }
@@ -61,7 +61,7 @@ export class CartsService {
         relations: ['cartItem'],
         where: { id: user.cart.id },
       });
-      if (!cart) throw new NotFoundException();
+      if (!cart) throw new NotFoundException('Không tìm thấy giỏ hàng');
     } catch (error) {
       throw error;
     }
@@ -88,7 +88,7 @@ export class CartsService {
       throw error;
     }
 
-    if (!cart) throw new NotFoundException();
+    if (!cart) throw new NotFoundException('Không tìm thấy giỏ hàng');
 
     return cart;
   }
@@ -110,7 +110,7 @@ export class CartsService {
     let cartSaved: Cart;
     try {
       const cart = await this.findOne(id, true);
-      if (!cart) throw new NotFoundException();
+      if (!cart) throw new NotFoundException('Không tìm thấy giỏ hàng');
 
       cart.accept_guaratee_policy = false;
       cart.cartItem = null;

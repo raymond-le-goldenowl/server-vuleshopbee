@@ -123,7 +123,7 @@ export class FloatingService {
 
     return {
       status: true,
-      message: 'Delete successfully',
+      message: 'xóa thành công',
     };
   }
 

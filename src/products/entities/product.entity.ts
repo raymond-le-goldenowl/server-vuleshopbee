@@ -22,6 +22,7 @@ import { Promotion } from 'src/promotion/entities/promotion.entity';
 import { OrderItem } from 'src/order_item/entities/order_item.entity';
 import { ProductOption } from 'src/product-options/entities/product-option.entity';
 import { ProductTag } from 'src/product_tag/entities/product_tag.entity';
+import { ProductAccount } from 'src/product_accounts/entities/product_account.entity';
 
 @Entity()
 export class Product {
@@ -123,9 +124,15 @@ export class Product {
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
 
-  @ManyToOne(() => ProductOption, (productOption) => productOption.product, {
+  @OneToMany(() => ProductOption, (productOption) => productOption.product, {
     nullable: true,
     eager: true,
   })
   productOptions: ProductOption[];
+
+  @OneToMany(() => ProductAccount, (productAccount) => productAccount.product, {
+    nullable: true,
+    eager: true,
+  })
+  productAccounts: ProductAccount[];
 }

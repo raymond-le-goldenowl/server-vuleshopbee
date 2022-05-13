@@ -118,7 +118,7 @@ export class NewsService {
 
     return {
       status: true,
-      message: 'Delete successfully',
+      message: 'Xóa thành công',
     };
   }
 

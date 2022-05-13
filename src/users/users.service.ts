@@ -37,7 +37,7 @@ export class UsersService {
     let userByEmail;
 
     if (!email) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không có email');
     }
 
     try {
@@ -62,7 +62,7 @@ export class UsersService {
     let userByEmailAndAuthType;
 
     if (!email) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không có email');
     }
 
     try {
@@ -81,7 +81,7 @@ export class UsersService {
   }
 
   signToken(user: User) {
-    if (!user) throw new BadRequestException();
+    if (!user) throw new BadRequestException('Không tìm thấy người dùng');
     const payload = {
       id: user.id,
       username: user.username,
@@ -104,13 +104,14 @@ export class UsersService {
     const user = await this.getUserByEmail(email);
 
     if (user) {
-      throw new ConflictException('User already exists');
+      throw new ConflictException('Người dùng đã tồn tại');
     }
 
     try {
       const cart = await this.createCartForUser();
       const role = await this.roleService.findOneByText('user', true);
-      if (!role) throw new NotFoundException('Role unavailable');
+      if (!role)
+        throw new NotFoundException('Vai trò người dùng không khả dụng');
 
       // generate salt and hash password
       const saltRounds = 10;
@@ -153,10 +154,13 @@ export class UsersService {
 
     try {
       const userByEmail: User = await this.getUserByEmail(email);
-      if (!userByEmail) throw new UnauthorizedException();
+      if (!userByEmail)
+        throw new UnauthorizedException(
+          'Không tìm thấy người dùng với email = ' + email,
+        );
 
       const match = bcrypt.compareSync(password, userByEmail.password);
-      if (!match) throw new UnauthorizedException();
+      if (!match) throw new UnauthorizedException('Mật khẩu không dúng');
 
       userByEmail.is_active = true;
       userUpdated = await this.usersRepository.save(userByEmail);
@@ -171,7 +175,7 @@ export class UsersService {
   async logout(jwtUserData: any) {
     let userUpdated: User;
     if (!jwtUserData) {
-      throw new ForbiddenException();
+      throw new ForbiddenException('Không tìm thấy người dùng');
     }
 
     const user = await this.usersRepository.findOne({
@@ -179,7 +183,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     try {
@@ -190,7 +194,7 @@ export class UsersService {
     }
 
     if (!userUpdated) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không thể cập nhập thông tin người dùng');
     }
 
     return { logout: true };
@@ -199,7 +203,7 @@ export class UsersService {
   async profile(jwtUserData: any, profileDto: ProfileDto) {
     let userUpdated: User;
     if (!jwtUserData) {
-      throw new ForbiddenException();
+      throw new ForbiddenException('Không tìm thấy thông tin người dùng');
     }
 
     let user = await this.usersRepository.findOne({
@@ -207,7 +211,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     try {
@@ -219,7 +223,7 @@ export class UsersService {
     }
 
     if (!userUpdated) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không thể cập nhập người dùng');
     }
 
     return { logout: true };
@@ -228,7 +232,7 @@ export class UsersService {
   async updateImage(jwtUserData: any, image: any) {
     let userUpdated: User;
     if (!jwtUserData) {
-      throw new ForbiddenException();
+      throw new ForbiddenException('Không tìm thấy người dùng');
     }
 
     const user = await this.usersRepository.findOne({
@@ -236,7 +240,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException('Không tìm thấy người dùng');
     }
 
     try {
@@ -247,7 +251,7 @@ export class UsersService {
     }
 
     if (!userUpdated) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không thể cập nhập người dùng');
     }
     delete userUpdated.password;
     return userUpdated;
@@ -263,7 +267,9 @@ export class UsersService {
     }
 
     if (!userByEmail) {
-      throw new NotFoundException();
+      throw new NotFoundException(
+        'Không tìm thấy người dùng với email=' + email,
+      );
     }
 
     delete userByEmail.password;
@@ -273,7 +279,7 @@ export class UsersService {
 
   async createResDataFacebookLogin(user: SignInFbDto) {
     if (!user) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không tìm thấy thông tin người dùng');
     }
 
     let userSaved: User;
@@ -324,7 +330,7 @@ export class UsersService {
 
   async createResDataGoogleLogin(user: SignInFbDto) {
     if (!user) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không tìm thấy thông tin người dùng');
     }
 
     let userSaved: User;
@@ -382,7 +388,7 @@ export class UsersService {
       throw error;
     }
 
-    if (!cart) throw new BadRequestException();
+    if (!cart) throw new BadRequestException('Không thể tạo giỏ hàng');
 
     return cart;
   }

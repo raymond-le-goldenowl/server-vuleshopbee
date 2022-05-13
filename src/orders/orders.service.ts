@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,9 +8,11 @@ import { CartsService } from 'src/carts/carts.service';
 import { Cart } from 'src/carts/entities/cart.entity';
 import { CartItemService } from 'src/cart_item/cart_item.service';
 import { CartItem } from 'src/cart_item/entities/cart_item.entity';
+import { EmailService } from 'src/email/email.service';
 import { Order } from 'src/orders/entities/order.entity';
-import { ProductsService } from 'src/products/products.service';
+import { ProductAccountsService } from 'src/product_accounts/product_accounts.service';
 import { User } from 'src/users/entities/user.entity';
+import { Connection } from 'typeorm';
 import { OrderItemService } from './../order_item/order_item.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -25,14 +26,54 @@ export class OrdersService {
     private cartItemService: CartItemService,
     private cartsService: CartsService,
     private orderItemService: OrderItemService,
+    private connection: Connection,
+    private emailService: EmailService,
+    private productAccountsService: ProductAccountsService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, user: User) {
     let orderFound: Order;
 
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
       const cart: Cart = user.cart;
-      const cartItem: CartItem[] = cart.cartItem.filter(
+      const allCartItemsWithCartId = await this.cartItemService.findAll(
+        true,
+        cart.id,
+      );
+
+      // find product with quantity of product is zero
+      const someQuantityGreaterThanProductAmount = allCartItemsWithCartId.find(
+        (item) => {
+          return item.quantity > item.product.amount;
+        },
+      );
+
+      if (someQuantityGreaterThanProductAmount) {
+        throw new BadRequestException(
+          `Sản phẩm ${someQuantityGreaterThanProductAmount.product.name} chỉ còn ${someQuantityGreaterThanProductAmount.product.amount}. Vui lòng thay đổi số lượng để phù hợp hơn`,
+        );
+      }
+
+      // find product with quantity of product is zero
+      const someQuantityEqualZero = allCartItemsWithCartId.find(
+        ({ product }) => {
+          return product?.amount === 0;
+        },
+      );
+
+      // if quantity equal zero, we will return an error with custom message
+      if (someQuantityEqualZero) {
+        throw new BadRequestException(
+          `Sản phẩm ${someQuantityEqualZero.product.name} đã hết hàng, vui lòng xóa sản phẩm khỏi giỏ hàng`,
+        );
+      }
+
+      // check if cart item with quantity == 0 will not create order with that item.
+      const cartItem: CartItem[] = allCartItemsWithCartId.filter(
         (item: CartItem) => item.quantity !== 0,
       );
 
@@ -48,14 +89,25 @@ export class OrdersService {
         amount,
         user,
       });
-      if (!orderSaved) throw new BadRequestException();
+
+      if (!orderSaved) throw new BadRequestException('Không thể  tạo đơn hàng');
       await this.orderItemService.createOrderItem(orderSaved, cartItem);
       orderFound = await this.findOne(orderSaved.id, true);
-      if (!orderFound) throw new NotFoundException();
+      if (!orderFound) throw new NotFoundException('Không tìm thấy đơn hàng');
+      // remove cart after saved
       await this.cartItemService.removeCartItemByCartId(cart.id);
       await this.cartsService.resetCart(cart.id);
+
+      // run query.
+      await queryRunner.commitTransaction();
     } catch (error) {
+      // since we have errors lets rollback the changes we made
+      await queryRunner.rollbackTransaction();
+
       throw error;
+    } finally {
+      // you need to release a queryRunner which was manually instantiated
+      await queryRunner.release();
     }
 
     return orderFound;
@@ -67,6 +119,7 @@ export class OrdersService {
       where: {
         user,
       },
+      withDeleted: true,
     });
 
     return orders;
@@ -121,7 +174,7 @@ export class OrdersService {
         });
       }
       if (!found) {
-        throw new NotFoundException();
+        throw new NotFoundException('Không tìm thấy đơn hàng');
       }
     } catch (error) {
       throw error;
@@ -129,12 +182,74 @@ export class OrdersService {
     return found;
   }
 
-  async update(id: string, updateOrderDto: UpdateOrderDto) {
+  async update(id: string, updateOrderDto: UpdateOrderDto, user: User) {
     let orderUpdated: Order;
     try {
-      let order = await this.findOne(id, false);
-      order = { ...order, ...updateOrderDto };
+      const order = await this.findOne(id, false);
+      const orderItems = await this.orderItemService.getAllByOrderId(order);
+      order.status = updateOrderDto.status;
       orderUpdated = await this.ordersRepository.save(order);
+
+      if (!orderUpdated) {
+        throw new BadRequestException('Không thể cập nhập đơn hàng');
+      }
+
+      // send mail here.
+      const arrayData = [];
+      const productAccountIds = [];
+
+      const productAccounts =
+        await this.productAccountsService.getProductAccountsByProductId(
+          orderItems,
+        );
+
+      orderItems.forEach(async (oi) => {
+        if (productAccounts.length === 0) return null;
+        productAccounts.forEach((pa, index) => {
+          if (index >= oi.quantity) return null;
+          const dt = {
+            productName: oi?.product?.name,
+            productUsername: pa?.username,
+            productPassword: pa?.password,
+          };
+          productAccountIds.push(pa.id);
+          arrayData.push(dt);
+        });
+      });
+
+      const message = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: 'AMP4EMAIL message',
+        text: 'For clients with plaintext support only',
+        html: this.emailService.emailTemplate(
+          'bạn vừa nhận được dữ liệu từ tôi',
+          arrayData,
+        ),
+        amp: `<!doctype html>
+        <html ⚡4email>
+          <head>
+            <meta charset="utf-8">
+            <style amp4email-boilerplate>body{visibility:hidden}</style>
+            <script async src="https://cdn.ampproject.org/v0.js"></script>
+            <script async custom-element="amp-anim" src="https://cdn.ampproject.org/v0/amp-anim-0.1.js"></script>
+          </head>
+          <body>
+            <p>Image: <amp-img src="https://cldup.com/P0b1bUmEet.png" width="16" height="16"/></p>
+            <p>GIF (requires "amp-anim" script in header):<br/>
+              <amp-anim src="https://cldup.com/D72zpdwI-i.gif" width="500" height="350"/></p>
+          </body>
+        </html>`,
+      };
+
+      const sended4current = await this.emailService.sendMail(message);
+      if (sended4current) {
+        message.to = order.receiver;
+        await this.emailService.sendMail(message);
+        await this.productAccountsService.deleteProductAccountsByProductIds(
+          productAccountIds,
+        );
+      }
     } catch (error) {
       throw error;
     }
@@ -143,15 +258,20 @@ export class OrdersService {
   }
 
   async remove(id: string, remove: boolean) {
+    let deleted: any;
     try {
-      const order = await this.findOne(id, false);
+      const order = await this.findOne(id, true);
+
+      await this.orderItemService.removeMany(order.orderItems);
+
       if (remove) {
-        await this.ordersRepository.delete(order);
+        deleted = await this.ordersRepository.delete(order.id);
       } else {
-        await this.ordersRepository.softDelete(order);
+        deleted = await this.ordersRepository.softDelete(order.id);
       }
     } catch (error) {
       throw error;
     }
+    return deleted?.affected > 0;
   }
 }

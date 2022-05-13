@@ -35,6 +35,17 @@ export class CartItemService {
         },
       });
 
+      // if (product.amount === 0) {
+      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
+      // }
+      // if (
+      //   product.amount -
+      //     (createCartItemDto.quantity + (findProductIsExists?.quantity || 0)) <
+      //   0
+      // ) {
+      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
+      // }
+
       // if exists product in cart, will be update quantity
       if (findProductIsExists) {
         return await this.updateQuantityOfItem(findProductIsExists.id, {
@@ -54,37 +65,36 @@ export class CartItemService {
       throw error;
     }
 
-    if (!cartItemSaved) throw new BadRequestException();
+    if (!cartItemSaved)
+      throw new BadRequestException('Không thể đưa sản phẩm vào giỏ hàng');
 
     return cartItemSaved;
   }
 
-  async findAll(withDeleted: boolean, cartId: string, productId: string) {
+  async findAll(withDeleted: boolean, cartId: string) {
     let cartItems: CartItem[];
 
     try {
       const cart = await this.cartsService.findOne(cartId, true);
-      const product = await (
-        await this.productsService.findOne(productId)
-      ).product;
 
       if (withDeleted) {
         cartItems = await this.cartItemRepository.find({
           relations: ['cart', 'product'],
           withDeleted: true,
-          where: { cart, product },
+          where: { cart },
         });
       } else {
         cartItems = await this.cartItemRepository.find({
           relations: ['cart', 'product'],
-          where: { cart, product },
+          where: { cart },
         });
       }
     } catch (error) {
       throw error;
     }
 
-    if (!cartItems) throw new NotFoundException();
+    if (!cartItems)
+      throw new NotFoundException('Không tìm thấy sản phẩm trong giỏ hàng');
 
     return cartItems;
   }
@@ -134,6 +144,19 @@ export class CartItemService {
         await this.productsService.findOne(productId)
       ).product;
 
+      // Kiểm tra số lượng sản phẩm còn đủ để thêm vào giỏ hàng hay không
+      // if (product.amount === 0) {
+      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
+      // }
+
+      // if (
+      //   product.amount -
+      //     (updateCartItemDto.quantity + (cartItem?.quantity || 0)) <
+      //   0
+      // ) {
+      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
+      // }
+      // tính toán cập nhập tăng hoặc giảm số lượng
       if (updateCartItemDto.quantity !== 0 && !updateCartItemDto.quantity) {
         updateCartItemDto.quantity = Number(cartItem.quantity) + 1;
       } else {
@@ -145,7 +168,8 @@ export class CartItemService {
       throw error;
     }
 
-    if (!cartItemUpdated) throw new BadRequestException();
+    if (!cartItemUpdated)
+      throw new BadRequestException('Không thể cập nhập giỏ hàng');
 
     return cartItemUpdated;
   }

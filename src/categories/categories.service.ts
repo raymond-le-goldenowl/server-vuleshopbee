@@ -22,7 +22,7 @@ export class CategoriesService {
     );
 
     if (!categorySaved) {
-      throw new BadRequestException(`Can not save category`);
+      throw new BadRequestException(`Không thể thêm categories`);
     }
 
     return categorySaved;
@@ -51,7 +51,7 @@ export class CategoriesService {
     }
 
     if (!category) {
-      throw new NotFoundException();
+      throw new NotFoundException('Không tìm thấy loại');
     }
     return category;
   }
@@ -61,14 +61,15 @@ export class CategoriesService {
     let categoryUpdated: Category;
     try {
       category = await this.findOne(id);
-      if (!category) throw new NotFoundException();
+      if (!category) throw new NotFoundException('Không tìm thấy loại');
       category.text = updateCategoryDto.text;
       category.value = updateCategoryDto.value;
       category.deleted_at = null;
 
       const categoryUpdated = await this.categoriesRepository.save(category);
 
-      if (!categoryUpdated) throw new BadRequestException();
+      if (!categoryUpdated)
+        throw new BadRequestException('Không thể cập nhập loại');
     } catch (error) {
       throw error;
     }

@@ -37,9 +37,8 @@ export class CartItemController {
   findAll(
     @Query('with_deleted') withDeleted: boolean,
     @Body('cartId') cartId: string,
-    @Body('productId') productId: string,
   ) {
-    return this.cartItemService.findAll(withDeleted, cartId, productId);
+    return this.cartItemService.findAll(withDeleted, cartId);
   }
 
   @UseGuards(JwtAuthGuard)

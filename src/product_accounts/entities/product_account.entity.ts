@@ -1,8 +1,11 @@
+import { Product } from 'src/products/entities/product.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -34,4 +37,8 @@ export class ProductAccount {
     type: 'timestamp',
   })
   deleted_at: Date;
+
+  @ManyToOne(() => Product, (product) => product.productAccounts)
+  @JoinColumn()
+  product: Product;
 }

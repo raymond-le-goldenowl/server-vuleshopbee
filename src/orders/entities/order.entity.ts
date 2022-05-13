@@ -32,6 +32,9 @@ export class Order {
   @Column({ type: 'char', length: 320 })
   receiver: string;
 
+  @Column({ type: 'boolean', default: false })
+  status: boolean;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP()',
@@ -50,16 +53,22 @@ export class Order {
   })
   deleted_at: Date;
 
-  @OneToOne(() => OrderStatusCode, (orderStatusCode) => orderStatusCode.order, {
-    eager: true,
-  })
-  @JoinColumn()
-  orderStatusCode: OrderStatusCode;
+  // @ManyToOne(
+  //   () => OrderStatusCode,
+  //   (orderStatusCode) => orderStatusCode.orders,
+  //   {
+  //     eager: true,
+  //   },
+  // )
+  // @JoinColumn()
+  // orderStatusCode: OrderStatusCode;
 
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn()
   user: User;
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { eager: true })
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, {
+    eager: true,
+  })
   orderItems: OrderItem[];
 }

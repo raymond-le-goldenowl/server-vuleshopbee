@@ -16,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: any) {
     if (!payload?.email) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Không thể xác thực token');
     }
 
     const user = await this.usersService.getUserByEmailAndAuthType(
@@ -25,11 +25,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     );
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Không thể tìm thấy người dùng');
     }
 
     if (!user.is_active) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Người dùng chưa đăng nhập');
     }
 
     return user;

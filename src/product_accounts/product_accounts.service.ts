@@ -1,26 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProductAccountDto } from './dto/create-product_account.dto';
-import { UpdateProductAccountDto } from './dto/update-product_account.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { OrderItem } from 'src/order_item/entities/order_item.entity';
+import { ProductsService } from 'src/products/products.service';
+import { ProductAccount } from './entities/product_account.entity';
+import { ProductAccountsRepository } from './product_accounts.repositoty';
 
 @Injectable()
 export class ProductAccountsService {
-  create(createProductAccountDto: CreateProductAccountDto) {
-    return 'This action adds a new productAccount';
+  constructor(
+    @InjectRepository(ProductAccountsRepository)
+    private productAccountsRepository: ProductAccountsRepository,
+    private productsService: ProductsService,
+  ) {}
+
+  async getProductAccountsByProductId(
+    orderItems: OrderItem[],
+  ): Promise<ProductAccount[]> {
+    let productAccounts;
+    try {
+      const products = orderItems.map((item) => {
+        return { product: item.product };
+      });
+      productAccounts = await this.productAccountsRepository.find({
+        relations: ['product'],
+        where: products,
+        withDeleted: true,
+      });
+    } catch (error) {
+      throw error;
+    }
+
+    return productAccounts;
   }
 
-  findAll() {
-    return `This action returns all productAccounts`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} productAccount`;
-  }
-
-  update(id: number, updateProductAccountDto: UpdateProductAccountDto) {
-    return `This action updates a #${id} productAccount`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} productAccount`;
+  async deleteProductAccountsByProductIds(productAccountIds: any[]) {
+    try {
+      await this.productAccountsRepository.delete(productAccountIds);
+    } catch (error) {
+      throw error;
+    }
   }
 }

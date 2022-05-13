@@ -121,7 +121,7 @@ export class SlidesService {
 
     return {
       status: true,
-      message: 'Delete successfully',
+      message: 'Xóa thành công',
     };
   }
 

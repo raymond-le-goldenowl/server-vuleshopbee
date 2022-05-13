@@ -2,11 +2,11 @@ import { Product } from 'src/products/entities/product.entity';
 import {
   Column,
   Entity,
-  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity()
@@ -38,6 +38,6 @@ export class ProductOption {
   })
   deleted_at: Date;
 
-  @OneToMany(() => Product, (product) => product.productOptions)
+  @ManyToOne(() => Product, (product) => product.productOptions)
   product: Product;
 }

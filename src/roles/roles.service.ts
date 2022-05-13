@@ -23,7 +23,7 @@ export class RolesService {
     }
 
     if (!roleSaved) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không thể tạo vai trò người dùng');
     }
 
     return roleSaved;

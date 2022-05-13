@@ -38,7 +38,7 @@ export class BannersService {
 
     // if saved fail should be throw new error
     if (!saved) {
-      throw new BadRequestException(`Can not save banner`);
+      throw new BadRequestException(`Không thể lưu banner`);
     }
 
     return saved;

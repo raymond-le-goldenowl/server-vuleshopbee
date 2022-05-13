@@ -14,7 +14,7 @@ export class EmailController {
       text: 'For clients with plaintext support only',
       html: this.emailService.emailTemplate(
         'bạn vừa nhận được dữ liệu từ tôi',
-        'dữ liệu tôi gửi cho bạn',
+        [],
       ),
       amp: `<!doctype html>
       <html ⚡4email>

@@ -104,7 +104,7 @@ export class TagsService {
     }
 
     if (!tag) {
-      throw new NotFoundException('Tags not found');
+      throw new NotFoundException('Không tìm thấy thẻ');
     }
 
     return tag;
@@ -114,7 +114,7 @@ export class TagsService {
     const tag = await this.tagsRepository.findOne(id);
 
     if (!tag) {
-      throw new NotFoundException();
+      throw new NotFoundException('Không thể cập nhập thẻ');
     }
 
     tag.text = updateTagDto.text;
@@ -132,7 +132,7 @@ export class TagsService {
       });
 
       if (!tag) {
-        throw new NotFoundException();
+        throw new NotFoundException('Không tìm thấy thẻ');
       }
 
       if (remove) {
@@ -141,7 +141,7 @@ export class TagsService {
         await this.tagsRepository.softDelete(tag.id);
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw new BadRequestException('Không thể xóa thẻ');
     }
   }
 }

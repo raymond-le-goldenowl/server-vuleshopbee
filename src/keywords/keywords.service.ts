@@ -91,7 +91,7 @@ export class KeywordsService {
 
     return {
       status: true,
-      message: 'Delete successfully',
+      message: 'xóa thành công',
     };
   }
 

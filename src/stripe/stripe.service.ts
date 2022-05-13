@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from 'src/users/entities/user.entity';
 import Stripe from 'stripe';
 
@@ -19,31 +19,42 @@ export class StripeService {
     });
   }
 
-  async checkoutSessions(user: User) {
-    const items = user.cart.cartItem.map((item) => {
-      if (item.quantity === 0) return;
-      return {
-        price_data: {
-          currency: 'vnd',
-          product_data: {
-            name: item.product.name,
+  async checkoutSessions(user: User, orderId: string) {
+    let checkoutSessions;
+    try {
+      const order = user.orders.find(
+        (item) => item.id === orderId && item.status === false,
+      );
+      if (!order) {
+        throw new BadRequestException('Bạn không có phiếu thanh toán');
+      }
+
+      const items = order.orderItems.map((item) => {
+        if (item.quantity === 0) return;
+        return {
+          price_data: {
+            currency: 'vnd',
+            product_data: {
+              name: item.product_name,
+            },
+            unit_amount: item.product_price,
           },
-          unit_amount: item.product.price,
-        },
-        quantity: Number(item.quantity),
-      };
-    });
+          quantity: Number(item.quantity),
+        };
+      });
 
-    const checkoutSessions = await this.stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: 'payment',
-      line_items: items,
-      customer: user.stripeCustomerId,
-      success_url: `${process.env.FRONTEND_URL}/account/cart/success`,
-      cancel_url: `${process.env.FRONTEND_URL}/account/cart/cancel`,
-    });
-
-    return { checkoutSessions };
+      checkoutSessions = await this.stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        mode: 'payment',
+        line_items: items,
+        customer: user.stripeCustomerId,
+        success_url: `${process.env.FRONTEND_URL}/account/cart/success`,
+        cancel_url: `${process.env.FRONTEND_URL}/account/cart/cancel`,
+      });
+    } catch (error) {
+      throw error;
+    }
+    return { checkoutSessions, orderId };
   }
 
   async retrievePaymentIntent(clientSecret: string) {
