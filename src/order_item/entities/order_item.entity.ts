@@ -54,7 +54,7 @@ export class OrderItem {
   })
   deleted_at: Date;
 
-  @ManyToOne(() => Product, (product) => product.orderItems)
+  @ManyToOne(() => Product, (product) => product.orderItems, { eager: true })
   @JoinColumn()
   product: Product;
 

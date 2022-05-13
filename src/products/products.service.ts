@@ -233,21 +233,33 @@ export class ProductsService {
     return productSaved;
   }
 
-  async reduceTheNumberOfProducts(id: string, quantity: number) {
+  async reduceTheNumberOfProduct(
+    id: string,
+    quantity: number,
+    isDown: boolean,
+  ) {
+    let data;
     try {
       const product = await (await this.findOne(id)).product;
       if (!product) {
         throw new NotFoundException('Không tìm thấy sản phẩm');
       }
-      if (product.amount >= quantity) {
-        product.amount = product.amount - quantity;
-        await this.productsRepository.save(product);
+      if (isDown) {
+        if (product.amount >= quantity) {
+          product.amount = product.amount - quantity;
+          data = await this.productsRepository.save(product);
+        } else {
+          throw new BadRequestException('Lỗi yêu cầu');
+        }
       } else {
-        return false;
+        product.amount = product.amount + quantity;
+        data = await this.productsRepository.save(product);
       }
     } catch (error) {
       throw error;
     }
+
+    return data;
   }
 
   async remove(id: string, remove: boolean) {

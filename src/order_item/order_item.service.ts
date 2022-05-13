@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CartItem } from 'src/cart_item/entities/cart_item.entity';
 import { Order } from 'src/orders/entities/order.entity';
@@ -33,9 +37,10 @@ export class OrderItemService {
           product: item.product,
         });
 
-        await this.productsService.reduceTheNumberOfProducts(
+        await this.productsService.reduceTheNumberOfProduct(
           item.product.id,
           item.quantity,
+          true,
         );
       });
 
@@ -56,15 +61,25 @@ export class OrderItemService {
   async removeMany(orderItems: OrderItem[]) {
     const queryRunner = this.connection.createQueryRunner();
 
-    let runQuery;
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       orderItems.forEach(async (item) => {
-        await this.orderItemRepository.softDelete(item.id);
+        const deleted = await this.orderItemRepository.softDelete(item.id);
+        if (!deleted) {
+          throw new BadRequestException(
+            'Thực hiện tính toán sản phẩm trong giỏ hàng không thành công',
+          );
+        }
+
+        await this.productsService.reduceTheNumberOfProduct(
+          item.product.id,
+          item.quantity,
+          false,
+        );
       });
 
-      runQuery = await queryRunner.commitTransaction();
+      await queryRunner.commitTransaction();
     } catch (err) {
       // since we have errors lets rollback the changes we made
       await queryRunner.rollbackTransaction();
@@ -73,8 +88,6 @@ export class OrderItemService {
       // you need to release a queryRunner which was manually instantiated
       await queryRunner.release();
     }
-
-    return runQuery;
   }
 
   async removeById(id: string) {

@@ -25,9 +25,23 @@ export class StripeService {
       const order = user.orders.find(
         (item) => item.id === orderId && item.status === false,
       );
+
       if (!order) {
         throw new BadRequestException('Bạn không có phiếu thanh toán');
       }
+
+      //  ! Chú ý
+      // // checkout is any product not enough quantity for checkout.
+      // const issueItems = order.orderItems.map(
+      //   (item) => item.quantity > item.product.amount,
+      // );
+
+      // if (issueItems.length > 0) {
+      //   // return issueItems;
+      //   throw new BadRequestException(
+      //     'Không thể thanh toán, vui lòng kiểm tra lại số lượng sản phẩm trong giỏ hàng của bạn',
+      //   );
+      // }
 
       const items = order.orderItems.map((item) => {
         if (item.quantity === 0) return;
