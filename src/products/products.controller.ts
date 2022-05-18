@@ -20,7 +20,7 @@ import { config } from './file-interceptor.config';
 import { Observable, of } from 'rxjs';
 import { join } from 'path';
 
-@Controller('products')
+@Controller('v1/products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 

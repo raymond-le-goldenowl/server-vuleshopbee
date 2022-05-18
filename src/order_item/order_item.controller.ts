@@ -12,7 +12,7 @@ import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
 import { UpdateOrderItemDto } from './dto/update-order_item.dto';
 import { OrderItemService } from './order_item.service';
 
-@Controller('order-item')
+@Controller('v1/order-item')
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
   @Delete(':id')

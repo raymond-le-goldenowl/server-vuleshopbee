@@ -27,7 +27,7 @@ import { Roles } from './decorators/roles.decorator';
 import { GetCurrentUserDecorator } from './decorators/get-user.decorator';
 import { SignInFbDto } from './dto/sigin-fb.dto';
 
-@Controller('users')
+@Controller('v1/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

@@ -20,7 +20,7 @@ import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { DeleteCartItemDto } from './dto/delete-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
 
-@Controller('cart-item')
+@Controller('v1/cart-item')
 export class CartItemController {
   constructor(private readonly cartItemService: CartItemService) {}
 

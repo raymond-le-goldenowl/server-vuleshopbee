@@ -13,7 +13,7 @@ import { KeywordsService } from './keywords.service';
 import { CreateKeywordDto } from './dto/create-keyword.dto';
 import { UpdateKeywordDto } from './dto/update-keyword.dto';
 
-@Controller('keywords')
+@Controller('v1/keywords')
 export class KeywordsController {
   constructor(private readonly keywordsService: KeywordsService) {}
 

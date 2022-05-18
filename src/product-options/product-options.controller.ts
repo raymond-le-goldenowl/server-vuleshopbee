@@ -11,7 +11,7 @@ import { ProductOptionsService } from './product-options.service';
 import { CreateProductOptionDto } from './dto/create-product-option.dto';
 import { UpdateProductOptionDto } from './dto/update-product-option.dto';
 
-@Controller('product-options')
+@Controller('v1/product-options')
 export class ProductOptionsController {
   constructor(private readonly productOptionsService: ProductOptionsService) {}
 

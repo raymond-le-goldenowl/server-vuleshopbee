@@ -20,7 +20,7 @@ import { config } from './file-interceptor.config';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 
-@Controller('news')
+@Controller('v1/news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 

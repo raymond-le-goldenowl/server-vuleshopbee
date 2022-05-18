@@ -11,7 +11,7 @@ import { DistrictsService } from './districts.service';
 import { CreateDistrictDto } from './dto/create-district.dto';
 import { UpdateDistrictDto } from './dto/update-district.dto';
 
-@Controller('districts')
+@Controller('v1/districts')
 export class DistrictsController {
   constructor(private readonly districtsService: DistrictsService) {}
 

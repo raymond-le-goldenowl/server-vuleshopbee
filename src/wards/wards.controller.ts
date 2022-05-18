@@ -11,7 +11,7 @@ import { WardsService } from './wards.service';
 import { CreateWardDto } from './dto/create-ward.dto';
 import { UpdateWardDto } from './dto/update-ward.dto';
 
-@Controller('wards')
+@Controller('v1/wards')
 export class WardsController {
   constructor(private readonly wardsService: WardsService) {}
 

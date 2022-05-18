@@ -15,7 +15,7 @@ import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
 import { CartsService } from './carts.service';
 import { CreateCartDto } from './dto/create-cart.dto';
 
-@Controller('carts')
+@Controller('v1/carts')
 export class CartsController {
   constructor(private readonly cartsService: CartsService) {}
 

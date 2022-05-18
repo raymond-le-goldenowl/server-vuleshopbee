@@ -12,7 +12,7 @@ import { ProductTagService } from './product_tag.service';
 import { CreateProductTagDto } from './dto/create-product_tag.dto';
 import { UpdateProductTagDto } from './dto/update-product_tag.dto';
 
-@Controller('product-tag')
+@Controller('v1/product-tag')
 export class ProductTagController {
   constructor(private readonly productTagService: ProductTagService) {}
 

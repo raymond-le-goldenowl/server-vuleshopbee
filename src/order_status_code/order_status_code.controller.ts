@@ -12,7 +12,7 @@ import { OrderStatusCodeService } from './order_status_code.service';
 import { CreateOrderStatusCodeDto } from './dto/create-order_status_code.dto';
 import { UpdateOrderStatusCodeDto } from './dto/update-order_status_code.dto';
 
-@Controller('order-status-code')
+@Controller('v1/order-status-code')
 export class OrderStatusCodeController {
   constructor(
     private readonly orderStatusCodeService: OrderStatusCodeService,

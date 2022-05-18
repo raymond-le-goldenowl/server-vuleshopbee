@@ -19,7 +19,7 @@ import { GetCurrentUserDecorator } from 'src/users/decorators/get-user.decorator
 import { User } from 'src/users/entities/user.entity';
 import { UpdateOrderBeforeCheckoutDto } from './dto/update-order-before-checkout.dto';
 
-@Controller('orders')
+@Controller('v1/orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
