@@ -1,4 +1,3 @@
-import { UpdateCartDto } from './dto/update-cart.dto';
 import {
   Injectable,
   BadRequestException,
@@ -9,6 +8,7 @@ import { CartsRepository } from './carts.repository';
 import { CreateCartDto } from './dto/create-cart.dto';
 import { Cart } from './entities/cart.entity';
 import { User } from 'src/users/entities/user.entity';
+import { createQueryBuilder } from 'typeorm';
 
 @Injectable()
 export class CartsService {

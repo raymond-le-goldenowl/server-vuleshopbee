@@ -40,7 +40,13 @@ export class RolesGuard implements CanActivate {
     let user: User;
 
     try {
-      user = this.jwtService.verify(token);
+      const jwtUserInfo = this.jwtService.verify(token);
+      user = await this.usersRepository.findOne({
+        relations: ['cart', 'role'],
+        where: {
+          id: jwtUserInfo.id,
+        },
+      });
     } catch (error) {
       const decodedToken = this.jwtService.decode(token) as User;
       if (!decodedToken) throw new BadRequestException('Lỗi xác thực token');

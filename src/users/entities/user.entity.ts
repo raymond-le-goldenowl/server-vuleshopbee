@@ -82,7 +82,7 @@ export class User {
   @JoinColumn()
   gender: Gender;
 
-  @ManyToOne(() => Role, (role) => role.users, { eager: true })
+  @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn()
   role: Role;
 
@@ -95,10 +95,10 @@ export class User {
   @OneToMany(() => Promotion, (promotion) => promotion.user)
   promotion: Promotion[];
 
-  @OneToOne(() => Cart, (cart) => cart.user, { eager: true })
+  @OneToOne(() => Cart, (cart) => cart.user)
   @JoinColumn()
   cart: Cart;
 
-  @OneToMany(() => Order, (order) => order.user, { eager: true })
+  @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
 }

@@ -41,6 +41,6 @@ export class Cart {
   @OneToOne(() => User, (user) => user.cart)
   user: User;
 
-  @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { eager: true })
+  @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
   cartItem: CartItem[];
 }

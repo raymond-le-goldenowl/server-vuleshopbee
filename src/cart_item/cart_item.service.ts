@@ -35,16 +35,16 @@ export class CartItemService {
         },
       });
 
-      // if (product.amount === 0) {
-      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
-      // }
-      // if (
-      //   product.amount -
-      //     (createCartItemDto.quantity + (findProductIsExists?.quantity || 0)) <
-      //   0
-      // ) {
-      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
-      // }
+      if (product.amount === 0) {
+        throw new BadRequestException('Số lượng sản phẩm không đủ');
+      }
+      if (
+        product.amount -
+          (createCartItemDto.quantity + (findProductIsExists?.quantity || 0)) <
+        0
+      ) {
+        throw new BadRequestException('Số lượng sản phẩm không đủ');
+      }
 
       // if exists product in cart, will be update quantity
       if (findProductIsExists) {
@@ -145,17 +145,14 @@ export class CartItemService {
       ).product;
 
       // Kiểm tra số lượng sản phẩm còn đủ để thêm vào giỏ hàng hay không
-      // if (product.amount === 0) {
-      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
-      // }
+      if (product.amount === 0) {
+        throw new BadRequestException('Số lượng sản phẩm không đủ');
+      }
 
-      // if (
-      //   product.amount -
-      //     (updateCartItemDto.quantity + (cartItem?.quantity || 0)) <
-      //   0
-      // ) {
-      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
-      // }
+      if (product.amount - updateCartItemDto.quantity < 0) {
+        throw new BadRequestException('Số lượng sản phẩm không đủ');
+      }
+
       // tính toán cập nhập tăng hoặc giảm số lượng
       if (updateCartItemDto.quantity !== 0 && !updateCartItemDto.quantity) {
         updateCartItemDto.quantity = Number(cartItem.quantity) + 1;

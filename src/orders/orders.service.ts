@@ -183,26 +183,35 @@ export class OrdersService {
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto, user: User) {
+    //   !
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     let orderUpdated: Order;
     try {
+      // cập nhập số lượng hàng.
       const order = await this.findOne(id, false);
-      const orderItems = await this.orderItemService.getAllByOrderId(order);
+      const orderItems = await this.orderItemService.getAllByOrder(order);
       order.status = updateOrderDto.status;
       orderUpdated = await this.ordersRepository.save(order);
 
       if (!orderUpdated) {
         throw new BadRequestException('Không thể cập nhập đơn hàng');
       }
-
+      await this.orderItemService.updateManyProductWithEachOrderItem(
+        orderItems,
+      );
       // send mail here.
       const arrayData = [];
       const productAccountIds = [];
 
+      // get account to send to customer
       const productAccounts =
         await this.productAccountsService.getProductAccountsByProductId(
           orderItems,
         );
 
+      // create list to send to customer
       orderItems.forEach(async (oi) => {
         if (productAccounts.length === 0) return null;
         productAccounts.forEach((pa, index) => {
@@ -227,19 +236,19 @@ export class OrdersService {
           arrayData,
         ),
         amp: `<!doctype html>
-        <html ⚡4email>
-          <head>
-            <meta charset="utf-8">
-            <style amp4email-boilerplate>body{visibility:hidden}</style>
-            <script async src="https://cdn.ampproject.org/v0.js"></script>
-            <script async custom-element="amp-anim" src="https://cdn.ampproject.org/v0/amp-anim-0.1.js"></script>
-          </head>
-          <body>
-            <p>Image: <amp-img src="https://cldup.com/P0b1bUmEet.png" width="16" height="16"/></p>
-            <p>GIF (requires "amp-anim" script in header):<br/>
-              <amp-anim src="https://cldup.com/D72zpdwI-i.gif" width="500" height="350"/></p>
-          </body>
-        </html>`,
+          <html ⚡4email>
+            <head>
+              <meta charset="utf-8">
+              <style amp4email-boilerplate>body{visibility:hidden}</style>
+              <script async src="https://cdn.ampproject.org/v0.js"></script>
+              <script async custom-element="amp-anim" src="https://cdn.ampproject.org/v0/amp-anim-0.1.js"></script>
+            </head>
+            <body>
+              <p>Image: <amp-img src="https://cldup.com/P0b1bUmEet.png" width="16" height="16"/></p>
+              <p>GIF (requires "amp-anim" script in header):<br/>
+                <amp-anim src="https://cldup.com/D72zpdwI-i.gif" width="500" height="350"/></p>
+            </body>
+          </html>`,
       };
 
       const sended4current = await this.emailService.sendMail(message);
@@ -250,11 +259,18 @@ export class OrdersService {
           productAccountIds,
         );
       }
-    } catch (error) {
-      throw error;
-    }
 
-    return orderUpdated;
+      // run query.
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      // since we have errors lets rollback the changes we made
+      await queryRunner.rollbackTransaction();
+
+      throw error;
+    } finally {
+      // you need to release a queryRunner which was manually instantiated
+      await queryRunner.release();
+    }
   }
 
   async remove(id: string, remove: boolean) {
@@ -273,5 +289,64 @@ export class OrdersService {
       throw error;
     }
     return deleted?.affected > 0;
+  }
+
+  async updateBeforeCheckout(
+    quantity,
+    orderItemId,
+    orderId,
+    productId,
+    user: User,
+  ) {
+    let orderSaved;
+    try {
+      const orderItem = await this.orderItemService.updateQuantityOfItem(
+        orderItemId,
+        {
+          quantity,
+          orderId,
+          productId,
+        },
+      );
+
+      if (orderItem) {
+        const order = await this.findOne(orderId, false);
+        const orderItems = order.orderItems;
+
+        // // find product with quantity of product is zero
+        // const someQuantityEqualZero = orderItems.find(({ product }) => {
+        //   return product?.amount === 0;
+        // });
+
+        // // if quantity equal zero, we will return an error with custom message
+        // if (someQuantityEqualZero) {
+        //   throw new BadRequestException(
+        //     `Sản phẩm ${someQuantityEqualZero.product.name} đã hết hàng, vui lòng xóa sản phẩm khỏi đơn hàng`,
+        //   );
+        // }
+
+        const total = orderItems.reduce((pre, curr) => pre + curr.quantity, 0);
+        const amount = orderItems.reduce(
+          (pre, curr) => pre + curr.product.price * curr.quantity,
+          0,
+        );
+
+        // return order and list of order item
+        orderSaved = await this.ordersRepository.save({
+          id: order.id,
+          total,
+          amount,
+          description: order.description,
+          receiver: order.receiver,
+          status: order.status,
+          user,
+        });
+      } else {
+        throw new BadRequestException('Chưa cập nhập được giỏ hàng');
+      }
+    } catch (error) {
+      throw error;
+    }
+    return orderSaved;
   }
 }

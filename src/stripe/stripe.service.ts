@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { OrdersService } from 'src/orders/orders.service';
 import { User } from 'src/users/entities/user.entity';
 import Stripe from 'stripe';
 
@@ -6,7 +7,7 @@ import Stripe from 'stripe';
 export class StripeService {
   private stripe: Stripe;
 
-  constructor() {
+  constructor(private ordersService: OrdersService) {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2020-08-27',
     });
@@ -22,26 +23,30 @@ export class StripeService {
   async checkoutSessions(user: User, orderId: string) {
     let checkoutSessions;
     try {
-      const order = user.orders.find(
-        (item) => item.id === orderId && item.status === false,
-      );
-
+      const order = await this.ordersService.findOne(orderId, false);
       if (!order) {
         throw new BadRequestException('Bạn không có phiếu thanh toán');
       }
 
-      //  ! Chú ý
-      // // checkout is any product not enough quantity for checkout.
-      // const issueItems = order.orderItems.map(
-      //   (item) => item.quantity > item.product.amount,
-      // );
+      // checkout is any product not enough quantity for checkout.
+      const issueItems = order.orderItems.filter(
+        (item) => item.quantity > item.product.amount,
+      );
 
-      // if (issueItems.length > 0) {
-      //   // return issueItems;
-      //   throw new BadRequestException(
-      //     'Không thể thanh toán, vui lòng kiểm tra lại số lượng sản phẩm trong giỏ hàng của bạn',
-      //   );
-      // }
+      if (issueItems.length > 0) {
+        // return issueItems;
+        // throw new BadRequestException(
+        //   'Không thể thanh toán, vui lòng kiểm tra lại số lượng sản phẩm trong giỏ hàng của bạn',
+        // );
+        // return error.
+        return {
+          message:
+            'Không thể thanh toán, vui lòng kiểm tra lại số lượng sản phẩm trong giỏ hàng của bạn',
+          statusCode: 400,
+          errorCode: '#400550',
+          issueItems,
+        };
+      }
 
       const items = order.orderItems.map((item) => {
         if (item.quantity === 0) return;
@@ -62,8 +67,8 @@ export class StripeService {
         mode: 'payment',
         line_items: items,
         customer: user.stripeCustomerId,
-        success_url: `${process.env.FRONTEND_URL}/account/cart/success`,
-        cancel_url: `${process.env.FRONTEND_URL}/account/cart/cancel`,
+        success_url: `${process.env.FRONTEND_URL}/account/stripe/success`,
+        cancel_url: `${process.env.FRONTEND_URL}/account/stripe/cancel`,
       });
     } catch (error) {
       throw error;
@@ -71,8 +76,16 @@ export class StripeService {
     return { checkoutSessions, orderId };
   }
 
-  async retrievePaymentIntent(clientSecret: string) {
+  async retrievePaymentIntent(
+    clientSecret: string,
+    orderId: string,
+    user: User,
+  ) {
     const session = this.stripe.checkout.sessions.retrieve(clientSecret);
+
+    if (session) {
+      this.ordersService.update(orderId, { status: true }, user);
+    }
 
     return session;
   }

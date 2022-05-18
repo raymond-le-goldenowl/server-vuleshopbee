@@ -60,12 +60,12 @@ export class UsersController {
     return this.usersService.logout(user);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/profile')
-  @Roles(Role.Admin, Role.User)
-  profile(@GetCurrentUserDecorator() user, @Body() profileDto: ProfileDto) {
-    return this.usersService.profile(user, profileDto);
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Post('/profile')
+  // @Roles(Role.Admin, Role.User)
+  // profile(@GetCurrentUserDecorator() user, @Body() profileDto: ProfileDto) {
+  //   return this.usersService.profile(user, profileDto);
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Get('/profile')

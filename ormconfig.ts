@@ -5,7 +5,7 @@ const config: PostgresConnectionOptions = {
   host: 'localhost',
   port: 5432,
   username: 'postgres',
-  password: 'postgres',
+  password: 'Golden123',
   database: 'vuleshopbee',
   entities: ['dist/**/*.entity{.ts,.js}'],
   synchronize: true,

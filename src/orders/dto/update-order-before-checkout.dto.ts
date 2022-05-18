@@ -1,13 +1,13 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class UpdateOrderItemDto {
+export class UpdateOrderBeforeCheckoutDto {
   @IsNotEmpty()
   quantity: number;
 
   @IsString()
   @IsNotEmpty()
   @IsUUID()
-  orderId: string;
+  orderItemId: string;
 
   @IsString()
   @IsNotEmpty()

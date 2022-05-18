@@ -17,6 +17,7 @@ import { Role } from 'src/users/enums/role.enum';
 import { Roles } from 'src/users/decorators/roles.decorator';
 import { GetCurrentUserDecorator } from 'src/users/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
+import { UpdateOrderBeforeCheckoutDto } from './dto/update-order-before-checkout.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -65,6 +66,25 @@ export class OrdersController {
     @GetCurrentUserDecorator() user: User,
   ) {
     return this.ordersService.update(id, updateOrderDto, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.User)
+  @Patch('/quantity/:id')
+  updateBeforeCheckout(
+    @Param('id') orderId: string,
+    @Body() updateOrderBeforeCheckoutDto: UpdateOrderBeforeCheckoutDto,
+    @GetCurrentUserDecorator() user: User,
+  ): Promise<void> {
+    const { quantity, orderItemId, productId } = updateOrderBeforeCheckoutDto;
+
+    return this.ordersService.updateBeforeCheckout(
+      quantity,
+      orderItemId,
+      orderId,
+      productId,
+      user,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

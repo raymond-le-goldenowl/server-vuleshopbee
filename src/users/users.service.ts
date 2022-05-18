@@ -67,6 +67,7 @@ export class UsersService {
 
     try {
       userByEmailAndAuthType = await this.usersRepository.findOne({
+        relations: ['role', 'cart'],
         where: { email, auth_type },
       });
     } catch (error) {
@@ -138,14 +139,7 @@ export class UsersService {
 
     delete userSaved.password;
     const accessToken = this.signToken(userSaved);
-    return { user: userSaved, accessToken };
-
-    // const newUser = await this.usersRepository.create({
-    //   ...userData,
-    //   stripeCustomerId: stripeCustomer.id,
-    // });
-    // await this.usersRepository.save(newUser);
-    // return newUser;
+    return { accessToken };
   }
 
   async signin(signInDto: SignInDto) {
@@ -169,7 +163,7 @@ export class UsersService {
     }
     delete userUpdated.password;
     const accessToken = this.signToken(userUpdated);
-    return { user: userUpdated, accessToken };
+    return { accessToken };
   }
 
   async logout(jwtUserData: any) {
@@ -317,7 +311,7 @@ export class UsersService {
 
         delete userSaved.password;
         const accessToken = this.signToken(userSaved);
-        return { user: userSaved, accessToken };
+        return { accessToken };
       } catch (error) {
         throw error;
       }
@@ -325,7 +319,7 @@ export class UsersService {
 
     delete userByEmailAndAuthType.password;
     const accessToken = this.signToken(userByEmailAndAuthType);
-    return { user: userByEmailAndAuthType, accessToken };
+    return { accessToken };
   }
 
   async createResDataGoogleLogin(user: SignInFbDto) {
@@ -368,7 +362,7 @@ export class UsersService {
 
         delete userSaved.password;
         const accessToken = this.signToken(userSaved);
-        return { user: userSaved, accessToken };
+        return { accessToken };
       } catch (error) {
         throw error;
       }
@@ -376,7 +370,7 @@ export class UsersService {
 
     delete userByEmailAndAuthType.password;
     const accessToken = this.signToken(userByEmailAndAuthType);
-    return { user: userByEmailAndAuthType, accessToken };
+    return { accessToken };
   }
 
   async createCartForUser(): Promise<Cart> {

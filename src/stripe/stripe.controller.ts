@@ -1,4 +1,4 @@
-import { Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { GetCurrentUserDecorator } from 'src/users/decorators/get-user.decorator';
 import { Roles } from 'src/users/decorators/roles.decorator';
 import { User } from 'src/users/entities/user.entity';
@@ -23,7 +23,11 @@ export class StripeController {
   @Post('/retrieve-payment-intent/:cs')
   @UseGuards(JwtAuthGuard)
   @Roles(Role.User)
-  async retrievePaymentIntent(@Param('cs') cs: string) {
-    return await this.stripeService.retrievePaymentIntent(cs);
+  async retrievePaymentIntent(
+    @GetCurrentUserDecorator() user: User,
+    @Param('cs') cs: string,
+    @Query('orderId') orderId: string,
+  ) {
+    return await this.stripeService.retrievePaymentIntent(cs, orderId, user);
   }
 }
