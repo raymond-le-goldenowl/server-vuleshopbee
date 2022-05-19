@@ -14,15 +14,19 @@ export class ProductTagService {
   ) {}
 
   async findProductTagsByProduct(productId: string) {
-    const product = await (
-      await this.productsService.findOne(productId)
-    ).product;
+    const { product, productsByVariantId } = await this.productsService.findOne(
+      productId,
+    );
 
-    return await this.productTagRepository.find({
-      where: {
-        product,
-      },
-    });
+    return {
+      product,
+      productsByVariantId,
+      tags: await this.productTagRepository.find({
+        where: {
+          product,
+        },
+      }),
+    };
   }
   async create(createProductTagDto: CreateProductTagDto) {
     const saved = await this.productTagRepository.save(createProductTagDto);
