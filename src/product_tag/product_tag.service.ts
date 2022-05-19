@@ -18,7 +18,7 @@ export class ProductTagService {
       await this.productsService.findOne(productId)
     ).product;
 
-    return this.productTagRepository.find({
+    return await this.productTagRepository.find({
       where: {
         product,
       },

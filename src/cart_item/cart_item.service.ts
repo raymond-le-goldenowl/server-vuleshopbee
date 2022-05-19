@@ -22,7 +22,7 @@ export class CartItemService {
 
   async create(createCartItemDto: CreateCartItemDto) {
     const { cartId, productId, quantity } = createCartItemDto;
-    let cartItemSaved;
+    let cartItemSaved: CartItem;
     try {
       const cart = await this.cartsService.findOne(cartId, true);
       const product = await (
@@ -48,11 +48,14 @@ export class CartItemService {
 
       // if exists product in cart, will be update quantity
       if (findProductIsExists) {
-        return await this.updateQuantityOfItem(findProductIsExists.id, {
-          quantity: findProductIsExists.quantity + quantity,
-          cartId,
-          productId,
-        });
+        cartItemSaved = await this.updateQuantityOfItem(
+          findProductIsExists.id,
+          {
+            quantity: findProductIsExists.quantity + quantity,
+            cartId,
+            productId,
+          },
+        );
       } else {
         const cartItem = await this.cartItemRepository.create({
           ...createCartItemDto,
@@ -68,6 +71,7 @@ export class CartItemService {
     if (!cartItemSaved)
       throw new BadRequestException('Không thể đưa sản phẩm vào giỏ hàng');
 
+    delete cartItemSaved.cart;
     return cartItemSaved;
   }
 
@@ -132,7 +136,10 @@ export class CartItemService {
     return cartItem;
   }
 
-  async updateQuantityOfItem(id: string, updateCartItemDto: UpdateCartItemDto) {
+  async updateQuantityOfItem(
+    id: string,
+    updateCartItemDto: UpdateCartItemDto,
+  ): Promise<CartItem> {
     let cartItemUpdated: CartItem;
 
     const { cartId, productId } = updateCartItemDto;

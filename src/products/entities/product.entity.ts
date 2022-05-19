@@ -12,7 +12,6 @@ import {
   ManyToMany,
 } from 'typeorm';
 
-import { Tag } from 'src/tags/entities/tag.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
 import { Supplier } from 'src/suppliers/entities/supplier.entity';
 import { Discount } from 'src/discounts/entities/discount.entity';
@@ -56,14 +55,8 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   platform: string;
 
-  // @Column({ type: 'boolean' })
-  // available: boolean;
-
   @Column({ type: 'boolean' })
   status: boolean;
-
-  // @Column({ type: 'integer', default: 0 })
-  // sale_of: number;
 
   @Column({ type: 'uuid', nullable: true })
   variant_id: string;
@@ -132,7 +125,6 @@ export class Product {
 
   @OneToMany(() => ProductAccount, (productAccount) => productAccount.product, {
     nullable: true,
-    eager: true,
   })
   productAccounts: ProductAccount[];
 }

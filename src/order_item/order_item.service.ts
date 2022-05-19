@@ -1,12 +1,7 @@
-import {
-  BadGatewayException,
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CartItem } from 'src/cart_item/entities/cart_item.entity';
 import { Order } from 'src/orders/entities/order.entity';
-import { OrdersService } from 'src/orders/orders.service';
 import { ProductsService } from 'src/products/products.service';
 import { Connection } from 'typeorm';
 import { UpdateOrderItemDto } from './dto/update-order_item.dto';
@@ -38,13 +33,6 @@ export class OrderItemService {
           order,
           product: item.product,
         });
-
-        // cập nhập lại số lượng từng sản phẩm.
-        // await this.productsService.reduceTheNumberOfProduct(
-        //   item.product.id,
-        //   item.quantity,
-        //   true,
-        // );
       });
 
       await queryRunner.commitTransaction();
@@ -101,11 +89,11 @@ export class OrderItemService {
         }
 
         // khi hủy hóa đơn thì tính cập nhập lại số lượng sản phẩm đã thêm vào giỏ hàng.
-        await this.productsService.reduceTheNumberOfProduct(
-          item.product.id,
-          item.quantity,
-          false,
-        );
+        // await this.productsService.reduceTheNumberOfProduct(
+        //   item.product.id,
+        //   item.quantity,
+        //   false,
+        // );
       });
 
       await queryRunner.commitTransaction();
