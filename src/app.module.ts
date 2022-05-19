@@ -41,8 +41,8 @@ import { ProductTagModule } from './product_tag/product_tag.module';
   imports: [
     TypeOrmModule.forRoot(config),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'static'),
-      serveRoot: '/static',
+      rootPath: join(__dirname, '..', '..', 'uploads'),
+      serveRoot: '/uploads',
       exclude: ['/api*'],
     }),
     MulterModule.register({

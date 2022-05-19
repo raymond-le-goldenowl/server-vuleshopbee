@@ -34,10 +34,6 @@ export class StripeService {
       );
 
       if (issueItems.length > 0) {
-        // return issueItems;
-        // throw new BadRequestException(
-        //   'Không thể thanh toán, vui lòng kiểm tra lại số lượng sản phẩm trong giỏ hàng của bạn',
-        // );
         // return error.
         return {
           message:
