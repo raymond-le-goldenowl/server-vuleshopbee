@@ -3,15 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { ProductsRepository } from './products.repository';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { CategoriesService } from 'src/categories/categories.service';
 import { Product } from './entities/product.entity';
-import { ProductAccount } from 'src/product_accounts/entities/product_account.entity';
+
+import { ProductsRepository } from './products.repository';
+
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class ProductsService {

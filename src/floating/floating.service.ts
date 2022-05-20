@@ -8,9 +8,10 @@ import { isURL } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Floating } from './entities/floating.entity';
-import { FloatingRepository } from './floating.repository';
 import { CreateFloatingDto } from './dto/create-floating.dto';
 import { UpdateFloatingDto } from './dto/update-floating.dto';
+
+import { FloatingRepository } from './floating.repository';
 
 @Injectable()
 export class FloatingService {

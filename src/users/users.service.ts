@@ -9,19 +9,23 @@ import {
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersRepository } from './users.repository';
+
+import { User } from './entities/user.entity';
+import { Cart } from 'src/carts/entities/cart.entity';
 
 import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
-import { User } from './entities/user.entity';
 import { ProfileDto } from './dto/profile.dto';
-import { RolesService } from 'src/roles/roles.service';
-import { trimSingleObjectValue } from 'src/utils/trim-single-object-value';
-import { CartsService } from 'src/carts/carts.service';
-import { CreateCartDto } from 'src/carts/dto/create-cart.dto';
-import { Cart } from 'src/carts/entities/cart.entity';
-import { StripeService } from 'src/stripe/stripe.service';
 import { SignInFbDto } from './dto/sigin-fb.dto';
+import { CreateCartDto } from 'src/carts/dto/create-cart.dto';
+
+import { UsersRepository } from './users.repository';
+
+import { RolesService } from 'src/roles/roles.service';
+import { CartsService } from 'src/carts/carts.service';
+import { StripeService } from 'src/stripe/stripe.service';
+
+import { trimSingleObjectValue } from 'src/utils/trim-single-object-value';
 
 @Injectable()
 export class UsersService {

@@ -1,15 +1,18 @@
-import { ProductsService } from './../products/products.service';
-import { CartsService } from './../carts/carts.service';
-import { CartItem } from './entities/cart_item.entity';
 import {
   Injectable,
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CartItemRepository } from './cart_item.repository';
+
+import { CartItem } from './entities/cart_item.entity';
 import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
+
+import { CartItemRepository } from './cart_item.repository';
+
+import { CartsService } from './../carts/carts.service';
+import { ProductsService } from './../products/products.service';
 
 @Injectable()
 export class CartItemService {

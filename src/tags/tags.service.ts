@@ -3,14 +3,17 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ProductsService } from 'src/products/products.service';
-import { ProductTagService } from 'src/product_tag/product_tag.service';
 import { Connection } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+
+import { Tag } from './entities/tag.entity';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
-import { Tag } from './entities/tag.entity';
+
 import { TagsRepository } from './tags.repository';
+
+import { ProductsService } from 'src/products/products.service';
+import { ProductTagService } from 'src/product_tag/product_tag.service';
 
 @Injectable()
 export class TagsService {

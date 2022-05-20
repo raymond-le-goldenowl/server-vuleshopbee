@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OrderItem } from 'src/order_item/entities/order_item.entity';
-import { ProductsService } from 'src/products/products.service';
+
 import { ProductAccount } from './entities/product_account.entity';
+import { OrderItem } from 'src/order_item/entities/order_item.entity';
+
 import { ProductAccountsRepository } from './product_accounts.repositoty';
+
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class ProductAccountsService {

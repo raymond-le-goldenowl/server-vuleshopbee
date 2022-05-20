@@ -4,11 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CartsRepository } from './carts.repository';
-import { CreateCartDto } from './dto/create-cart.dto';
+
 import { Cart } from './entities/cart.entity';
 import { User } from 'src/users/entities/user.entity';
-import { createQueryBuilder } from 'typeorm';
+import { CreateCartDto } from './dto/create-cart.dto';
+
+import { CartsRepository } from './carts.repository';
 
 @Injectable()
 export class CartsService {

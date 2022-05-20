@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { OrdersService } from 'src/orders/orders.service';
-import { User } from 'src/users/entities/user.entity';
 import Stripe from 'stripe';
+import { User } from 'src/users/entities/user.entity';
+import { OrdersService } from 'src/orders/orders.service';
 
 @Injectable()
 export class StripeService {

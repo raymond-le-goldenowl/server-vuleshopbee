@@ -1,25 +1,21 @@
 import {
   Get,
   Res,
-  Req,
   Post,
   Body,
   UseGuards,
   Controller,
-  HttpStatus,
   UploadedFile,
   UseInterceptors,
   Param,
 } from '@nestjs/common';
 import { join } from 'path';
 import { Observable, of } from 'rxjs';
-import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { Role } from './enums/role.enum';
 import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
-import { ProfileDto } from './dto/profile.dto';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { config } from './file-interceptor.config';
@@ -60,13 +56,6 @@ export class UsersController {
     return this.usersService.logout(user);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Post('/profile')
-  // @Roles(Role.Admin, Role.User)
-  // profile(@GetCurrentUserDecorator() user, @Body() profileDto: ProfileDto) {
-  //   return this.usersService.profile(user, profileDto);
-  // }
-
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
   @Roles(Role.Admin, Role.User)
@@ -90,13 +79,5 @@ export class UsersController {
     return of(
       res.sendFile(join(process.cwd(), 'uploads/avatars/' + imageName)),
     );
-  }
-
-  // Test Role and JwtAuthGuard
-  @UseGuards(JwtAuthGuard)
-  @Get('/test')
-  @Roles(Role.Admin, Role.User)
-  test(@GetCurrentUserDecorator() _user) {
-    return 'test';
   }
 }

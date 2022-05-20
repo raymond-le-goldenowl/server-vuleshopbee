@@ -5,10 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
+import { Menu } from './entities/menu.entity';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
+
 import { CategoriesService } from 'src/categories/categories.service';
-import { Menu } from './entities/menu.entity';
 
 @Injectable()
 export class MenuService {

@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProductsService } from 'src/products/products.service';
+
 import { CreateProductTagDto } from './dto/create-product_tag.dto';
 import { UpdateProductTagDto } from './dto/update-product_tag.dto';
+
 import { ProductTagRepository } from './product_tag.repository';
+
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class ProductTagService {

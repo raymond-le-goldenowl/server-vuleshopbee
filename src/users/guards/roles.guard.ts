@@ -6,13 +6,15 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { TokenExpiredError } from 'jsonwebtoken';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { ROLES_KEY } from '../decorators/roles.decorator';
+
 import { User } from '../entities/user.entity';
-import { Role } from '../enums/role.enum';
+
 import { UsersRepository } from '../users.repository';
+
+import { Role } from '../enums/role.enum';
+import { ROLES_KEY } from '../decorators/roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
