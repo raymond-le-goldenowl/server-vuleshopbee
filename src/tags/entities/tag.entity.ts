@@ -1,15 +1,15 @@
 import {
   Column,
   Entity,
-  OneToMany,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
+  ManyToOne,
 } from 'typeorm';
 
-import { Product } from 'src/products/entities/product.entity';
+import { ProductTag } from 'src/product_tag/entities/product_tag.entity';
 
 @Entity()
 export class Tag {
@@ -37,7 +37,6 @@ export class Tag {
   })
   deleted_at: Date;
 
-  @OneToMany(() => Product, (product) => product.tags)
-  @JoinColumn()
-  product: Product;
+  @ManyToOne(() => ProductTag, (productTag) => productTag.tag)
+  productTags: ProductTag[];
 }

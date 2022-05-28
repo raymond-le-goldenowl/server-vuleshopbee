@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
 } from 'typeorm';
 
-import { Tag } from 'src/tags/entities/tag.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
 import { Supplier } from 'src/suppliers/entities/supplier.entity';
 import { Discount } from 'src/discounts/entities/discount.entity';
@@ -18,6 +19,9 @@ import { Category } from 'src/categories/entities/category.entity';
 import { CartItem } from 'src/cart_item/entities/cart_item.entity';
 import { Promotion } from 'src/promotion/entities/promotion.entity';
 import { OrderItem } from 'src/order_item/entities/order_item.entity';
+import { ProductOption } from 'src/product-options/entities/product-option.entity';
+import { ProductTag } from 'src/product_tag/entities/product_tag.entity';
+import { ProductAccount } from 'src/product_accounts/entities/product_account.entity';
 
 @Entity()
 export class Product {
@@ -37,36 +41,30 @@ export class Product {
   price: number;
 
   @Column({ type: 'char', length: 255 })
-  slug: number;
+  slug: string;
 
   @Column({ type: 'text' })
   image: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   tutorial: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   platform: string;
-
-  @Column({ type: 'boolean' })
-  available: boolean;
 
   @Column({ type: 'boolean' })
   status: boolean;
 
-  @Column({ type: 'integer' })
-  sale_of: number;
-
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   variant_id: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   variant_title: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   variant_text: string;
 
   @Column({ type: 'varchar', length: 255 })
@@ -97,14 +95,15 @@ export class Product {
   @JoinColumn()
   category: Category;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.products)
+  @ManyToOne(() => Supplier, (supplier) => supplier.products, { eager: true })
+  @JoinColumn()
   supplier: Supplier;
 
   @ManyToOne(() => Discount, (discount) => discount.product)
   discounts: Discount[];
 
-  @ManyToOne(() => Tag, (tag) => tag.product)
-  tags: Tag[];
+  @ManyToMany(() => ProductTag, (tag) => tag.product)
+  productTags: ProductTag[];
 
   @OneToOne(() => Wishlist, (wishlist) => wishlist.product)
   wishlist: Wishlist;
@@ -115,6 +114,17 @@ export class Product {
   @OneToOne(() => CartItem, (cartItem) => cartItem.product)
   cartItem: CartItem;
 
-  @OneToOne(() => OrderItem, (orderItem) => orderItem.product)
-  orderItem: OrderItem;
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItems: OrderItem[];
+
+  @OneToMany(() => ProductOption, (productOption) => productOption.product, {
+    nullable: true,
+    eager: true,
+  })
+  productOptions: ProductOption[];
+
+  @OneToMany(() => ProductAccount, (productAccount) => productAccount.product, {
+    nullable: true,
+  })
+  productAccounts: ProductAccount[];
 }

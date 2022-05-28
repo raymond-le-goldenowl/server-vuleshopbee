@@ -79,9 +79,7 @@ export class KeywordsService {
       const Keyword = await this.findOneKeyword(id);
 
       // Check if Keyword deleted
-      if (Keyword.deleted_at) {
-        throw new ConflictException(`Keyword deleted before`);
-      }
+      if (Keyword.deleted_at) throw new ConflictException(`Keyword deleted`);
 
       KeywordDeleted = await this.keywordsRepository.softDelete(id);
     }
@@ -93,7 +91,7 @@ export class KeywordsService {
 
     return {
       status: true,
-      message: 'Delete successfully',
+      message: 'xóa thành công',
     };
   }
 

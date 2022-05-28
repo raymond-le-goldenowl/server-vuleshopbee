@@ -16,7 +16,7 @@ import { BroadcastsService } from './broadcasts.service';
 import { CreateBroadcastDto } from './dto/create-broadcast.dto';
 import { UpdateBroadcastDto } from './dto/update-broadcast.dto';
 
-@Controller('broadcasts')
+@Controller('v1/broadcasts')
 export class BroadcastsController {
   constructor(private readonly broadcastsService: BroadcastsService) {}
   /**

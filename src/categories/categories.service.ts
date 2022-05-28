@@ -4,10 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+
 import { CategoriesRepository } from './categories.repository';
-import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoriesService {
@@ -21,10 +22,8 @@ export class CategoriesService {
       createCategoryDto,
     );
 
-    console.log(categorySaved);
-
     if (!categorySaved) {
-      throw new BadRequestException(`Can not save category`);
+      throw new BadRequestException(`Không thể thêm categories`);
     }
 
     return categorySaved;
@@ -35,7 +34,7 @@ export class CategoriesService {
     try {
       categories = await this.categoriesRepository.find({ withDeleted: true });
     } catch (error) {
-      throw new NotFoundException();
+      throw error;
     }
     return categories;
   }
@@ -49,7 +48,11 @@ export class CategoriesService {
         where: { id },
       });
     } catch (error) {
-      throw new NotFoundException();
+      throw error;
+    }
+
+    if (!category) {
+      throw new NotFoundException('Không tìm thấy loại');
     }
     return category;
   }
@@ -59,20 +62,17 @@ export class CategoriesService {
     let categoryUpdated: Category;
     try {
       category = await this.findOne(id);
-      if (!category) {
-        throw new NotFoundException();
-      }
+      if (!category) throw new NotFoundException('Không tìm thấy loại');
       category.text = updateCategoryDto.text;
       category.value = updateCategoryDto.value;
       category.deleted_at = null;
 
       const categoryUpdated = await this.categoriesRepository.save(category);
 
-      if (!categoryUpdated) {
-        throw new BadRequestException();
-      }
+      if (!categoryUpdated)
+        throw new BadRequestException('Không thể cập nhập loại');
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
 
     return categoryUpdated;
@@ -86,7 +86,7 @@ export class CategoriesService {
         await this.categoriesRepository.softDelete({});
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
   }
 
@@ -98,7 +98,7 @@ export class CategoriesService {
         await this.categoriesRepository.softDelete(id);
       }
     } catch (error) {
-      throw new BadRequestException();
+      throw error;
     }
   }
 }

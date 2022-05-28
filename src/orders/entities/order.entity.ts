@@ -23,11 +23,17 @@ export class Order {
   @Column({ type: 'integer' })
   total: number;
 
+  @Column({ type: 'integer' })
+  amount: number;
+
   @Column({ type: 'varchar', length: 255 })
   description: string;
 
   @Column({ type: 'char', length: 320 })
   receiver: string;
+
+  @Column({ type: 'boolean', default: false })
+  status: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -47,9 +53,15 @@ export class Order {
   })
   deleted_at: Date;
 
-  @OneToOne(() => OrderStatusCode, (orderStatusCode) => orderStatusCode.order)
-  @JoinColumn()
-  orderStatusCode: OrderStatusCode;
+  // @ManyToOne(
+  //   () => OrderStatusCode,
+  //   (orderStatusCode) => orderStatusCode.orders,
+  //   {
+  //     eager: true,
+  //   },
+  // )
+  // @JoinColumn()
+  // orderStatusCode: OrderStatusCode;
 
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn()

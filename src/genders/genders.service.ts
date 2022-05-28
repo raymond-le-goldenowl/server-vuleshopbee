@@ -1,9 +1,15 @@
+import { GendersRepository } from './genders.repository';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateGenderDto } from './dto/create-gender.dto';
 import { UpdateGenderDto } from './dto/update-gender.dto';
 
 @Injectable()
 export class GendersService {
+  constructor(
+    @InjectRepository(GendersRepository)
+    private gendersRepository: GendersRepository,
+  ) {}
   create(createGenderDto: CreateGenderDto) {
     return 'This action adds a new gender';
   }

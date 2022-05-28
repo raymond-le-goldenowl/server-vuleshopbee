@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
+  Column,
 } from 'typeorm';
 
 import { Order } from 'src/orders/entities/order.entity';
@@ -16,6 +17,24 @@ import { Product } from 'src/products/entities/product.entity';
 export class OrderItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ type: 'boolean', default: false })
+  accept_guarantee_policy: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  product_name: string;
+
+  @Column({ type: 'integer', nullable: true })
+  product_price: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  product_image: string;
+
+  @Column({ type: 'integer' })
+  quantity: number;
+
+  @Column({ type: 'integer' })
+  price: number;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -35,7 +54,7 @@ export class OrderItem {
   })
   deleted_at: Date;
 
-  @OneToOne(() => Product, (product) => product.orderItem)
+  @ManyToOne(() => Product, (product) => product.orderItems, { eager: true })
   @JoinColumn()
   product: Product;
 

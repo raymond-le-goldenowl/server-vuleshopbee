@@ -1,45 +1,32 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Param,
+  Patch,
+  UseGuards,
 } from '@nestjs/common';
-import { OrderItemService } from './order_item.service';
-import { CreateOrderItemDto } from './dto/create-order_item.dto';
+import { Roles } from 'src/users/decorators/roles.decorator';
+import { Role } from 'src/users/enums/role.enum';
+import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
 import { UpdateOrderItemDto } from './dto/update-order_item.dto';
+import { OrderItemService } from './order_item.service';
 
-@Controller('order-item')
+@Controller('v1/order-item')
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
-
-  @Post()
-  create(@Body() createOrderItemDto: CreateOrderItemDto) {
-    return this.orderItemService.create(createOrderItemDto);
+  @Delete(':id')
+  deleteById(@Param('id') id: string) {
+    return this.orderItemService.removeById(id);
   }
 
-  @Get()
-  findAll() {
-    return this.orderItemService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderItemService.findOne(+id);
-  }
-
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.User)
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateOrderItemDto: UpdateOrderItemDto,
   ) {
-    return this.orderItemService.update(+id, updateOrderItemDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderItemService.remove(+id);
+    return this.orderItemService.updateQuantityOfItem(id, updateOrderItemDto);
   }
 }

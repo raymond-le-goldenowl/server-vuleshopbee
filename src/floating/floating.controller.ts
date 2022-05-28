@@ -20,7 +20,7 @@ import { FloatingService } from './floating.service';
 import { CreateFloatingDto } from './dto/create-floating.dto';
 import { UpdateFloatingDto } from './dto/update-floating.dto';
 
-@Controller('floating')
+@Controller('v1/floating')
 export class FloatingController {
   constructor(private readonly floatingService: FloatingService) {}
 
