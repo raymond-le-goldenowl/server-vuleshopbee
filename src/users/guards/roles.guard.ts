@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -51,12 +52,13 @@ export class RolesGuard implements CanActivate {
       });
     } catch (error) {
       const decodedToken = this.jwtService.decode(token) as User;
-      if (!decodedToken) throw new BadRequestException('Lỗi xác thực token');
+      if (!decodedToken) throw new UnauthorizedException('Lỗi xác thực token');
 
       const userToUpdate = await this.usersRepository.findOne(decodedToken.id);
 
-      if (!userToUpdate)
-        throw new NotFoundException('Không tìm thấy thông tin người dùng');
+      if (!userToUpdate) {
+        throw new NotFoundException('Không thể xác thực người dùng');
+      }
 
       userToUpdate.is_active = false;
       await this.usersRepository.save(userToUpdate);
@@ -64,8 +66,9 @@ export class RolesGuard implements CanActivate {
       throw new BadRequestException(error.message);
     }
 
-    if (!user?.role)
+    if (!user?.role) {
       throw new BadRequestException('Chưa có vai trò người dùng');
+    }
 
     const roleValue = user.role.value as Role;
     return requiredRoles.includes(roleValue);

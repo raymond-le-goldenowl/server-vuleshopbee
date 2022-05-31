@@ -1,11 +1,13 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { AppModule } from './app.module';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import helmet from 'helmet';
+// somewhere in your initialization file
 
+import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './http-exception.filter';
 
 async function bootstrap() {
@@ -13,18 +15,15 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://192.168.1.77:3000',
-      'http://localhost:1412',
-      'http://192.168.1.77:1412',
-    ],
-    credentials: true,
-  });
-
+  app.enableCors({});
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: false,
+    }),
+  );
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new HttpExceptionFilter());
+  const httpAdapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new HttpExceptionFilter(httpAdapterHost));
 
   const config = new DocumentBuilder()
     .setTitle('vuleshopbee-api')

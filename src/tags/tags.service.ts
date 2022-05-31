@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Connection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -30,7 +26,7 @@ export class TagsService {
     await queryRunner.startTransaction();
     let savedProductTag = null;
     try {
-      const objectProject = await await this.productsService.findOne(
+      const objectProject = await this.productsService.findOne(
         createTagDto.product_id,
       );
 
@@ -83,28 +79,15 @@ export class TagsService {
     }
   }
 
-  async findAll(withDeleted) {
-    let tags = [];
-
-    if (withDeleted) {
-      tags = await this.tagsRepository.find({ withDeleted: true });
-    } else {
-      tags = await this.tagsRepository.find();
-    }
-
-    return tags;
+  async findAll(withDeleted: boolean) {
+    return await this.tagsRepository.find({ withDeleted: withDeleted });
   }
 
   async findOne(id: string, withDeleted: boolean) {
-    let tag = {};
-    if (withDeleted) {
-      tag = await this.tagsRepository.findOne({
-        where: { id },
-        withDeleted: true,
-      });
-    } else {
-      tag = await this.tagsRepository.findOne(id);
-    }
+    const tag: Tag = await this.tagsRepository.findOne({
+      where: { id },
+      withDeleted: withDeleted,
+    });
 
     if (!tag) {
       throw new NotFoundException('Không tìm thấy thẻ');
@@ -114,37 +97,18 @@ export class TagsService {
   }
 
   async update(id: string, updateTagDto: UpdateTagDto) {
-    const tag = await this.tagsRepository.findOne(id);
-
-    if (!tag) {
-      throw new NotFoundException('Không thể cập nhập thẻ');
-    }
-
+    const tag = await this.findOne(id, true);
     tag.text = updateTagDto.text;
-
-    const saved = await this.tagsRepository.save(tag);
-
-    return saved;
+    return await this.tagsRepository.save(tag);
   }
 
   async remove(id: string, remove: boolean) {
-    try {
-      const tag = await this.tagsRepository.findOne({
-        where: { id },
-        withDeleted: true,
-      });
+    const tag = await this.findOne(id, true);
 
-      if (!tag) {
-        throw new NotFoundException('Không tìm thấy thẻ');
-      }
-
-      if (remove) {
-        await this.tagsRepository.delete(tag.id);
-      } else {
-        await this.tagsRepository.softDelete(tag.id);
-      }
-    } catch (error) {
-      throw new BadRequestException('Không thể xóa thẻ');
+    if (remove) {
+      return await this.tagsRepository.delete(tag.id);
     }
+
+    return await this.tagsRepository.softDelete(tag.id);
   }
 }

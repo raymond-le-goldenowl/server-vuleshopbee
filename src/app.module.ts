@@ -37,6 +37,9 @@ import { ProductTagModule } from './product_tag/product_tag.module';
 import { ProductOptionsModule } from './product-options/product-options.module';
 import { ProductAccountsModule } from './product_accounts/product_accounts.module';
 
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './http-exception.filter';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot(config),
@@ -80,6 +83,11 @@ import { ProductAccountsModule } from './product_accounts/product_accounts.modul
     ProductAccountsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}

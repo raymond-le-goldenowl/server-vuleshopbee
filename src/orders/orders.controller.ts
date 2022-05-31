@@ -1,3 +1,4 @@
+import { Order } from 'src/orders/entities/order.entity';
 import {
   Controller,
   Get,
@@ -75,7 +76,7 @@ export class OrdersController {
     @Param('id') orderId: string,
     @Body() updateOrderBeforeCheckoutDto: UpdateOrderBeforeCheckoutDto,
     @GetCurrentUserDecorator() user: User,
-  ): Promise<void> {
+  ): Promise<Order> {
     const { quantity, orderItemId, productId } = updateOrderBeforeCheckoutDto;
 
     return this.ordersService.updateBeforeCheckout(

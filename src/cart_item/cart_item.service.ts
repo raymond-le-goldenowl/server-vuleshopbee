@@ -13,6 +13,7 @@ import { CartItemRepository } from './cart_item.repository';
 
 import { CartsService } from './../carts/carts.service';
 import { ProductsService } from './../products/products.service';
+import { DeleteResult, UpdateResult } from 'typeorm';
 
 @Injectable()
 export class CartItemService {
@@ -23,85 +24,68 @@ export class CartItemService {
     private productsService: ProductsService,
   ) {}
 
-  async create(createCartItemDto: CreateCartItemDto) {
+  async create(createCartItemDto: CreateCartItemDto): Promise<CartItem> {
     const { cartId, productId, quantity } = createCartItemDto;
     let cartItemSaved: CartItem;
-    try {
-      const cart = await this.cartsService.findOne(cartId, true);
-      const product = await (
-        await this.productsService.findOne(productId)
-      ).product;
 
-      const findProductIsExists = await this.cartItemRepository.findOne({
-        where: {
-          product,
-        },
-      });
+    const cart = await this.cartsService.findOne(cartId, true);
+    const product = (await this.productsService.findOne(productId)).product;
 
-      if (product.amount === 0) {
-        throw new BadRequestException('Số lượng sản phẩm không đủ');
-      }
-      if (
-        product.amount -
-          (createCartItemDto.quantity + (findProductIsExists?.quantity || 0)) <
-        0
-      ) {
-        throw new BadRequestException('Số lượng sản phẩm không đủ');
-      }
+    const findProductIsExists = await this.cartItemRepository.findOne({
+      where: {
+        product,
+      },
+    });
 
-      // if exists product in cart, will be update quantity
-      if (findProductIsExists) {
-        cartItemSaved = await this.updateQuantityOfItem(
-          findProductIsExists.id,
-          {
-            quantity: findProductIsExists.quantity + quantity,
-            cartId,
-            productId,
-          },
-        );
-      } else {
-        const cartItem = await this.cartItemRepository.create({
-          ...createCartItemDto,
-          cart,
-          product,
-        });
-        cartItemSaved = await this.cartItemRepository.save(cartItem);
-      }
-    } catch (error) {
-      throw error;
+    if (product.amount === 0) {
+      throw new BadRequestException('Số lượng sản phẩm không đủ');
+    }
+    if (
+      product.amount -
+        (createCartItemDto.quantity + (findProductIsExists?.quantity || 0)) <
+      0
+    ) {
+      throw new BadRequestException('Số lượng sản phẩm không đủ');
     }
 
-    if (!cartItemSaved)
-      throw new BadRequestException('Không thể đưa sản phẩm vào giỏ hàng');
+    // if exists product in cart, will be update quantity
+    if (findProductIsExists) {
+      cartItemSaved = await this.updateQuantityOfItem(findProductIsExists.id, {
+        quantity: findProductIsExists.quantity + quantity,
+        cartId,
+        productId,
+      });
+    } else {
+      // create cart item
+      const cartItem = this.cartItemRepository.create({
+        ...createCartItemDto,
+        cart,
+        product,
+      });
+      cartItemSaved = await this.cartItemRepository.save(cartItem);
+    }
 
     delete cartItemSaved.cart;
     return cartItemSaved;
   }
 
-  async findAll(withDeleted: boolean, cartId: string) {
+  async findAll(withDeleted: boolean, cartId: string): Promise<CartItem[]> {
     let cartItems: CartItem[];
 
-    try {
-      const cart = await this.cartsService.findOne(cartId, true);
+    const cart = await this.cartsService.findOne(cartId, true);
 
-      if (withDeleted) {
-        cartItems = await this.cartItemRepository.find({
-          relations: ['cart', 'product'],
-          withDeleted: true,
-          where: { cart },
-        });
-      } else {
-        cartItems = await this.cartItemRepository.find({
-          relations: ['cart', 'product'],
-          where: { cart },
-        });
-      }
-    } catch (error) {
-      throw error;
+    if (withDeleted) {
+      cartItems = await this.cartItemRepository.find({
+        relations: ['cart', 'product'],
+        withDeleted: true,
+        where: { cart },
+      });
+    } else {
+      cartItems = await this.cartItemRepository.find({
+        relations: ['cart', 'product'],
+        where: { cart },
+      });
     }
-
-    if (!cartItems)
-      throw new NotFoundException('Không tìm thấy sản phẩm trong giỏ hàng');
 
     return cartItems;
   }
@@ -111,31 +95,26 @@ export class CartItemService {
     withDeleted: boolean,
     cartId: string,
     productId: string,
-  ) {
+  ): Promise<CartItem> {
     let cartItem: CartItem;
+    const cart = await this.cartsService.findOne(cartId, true);
+    const product = (await this.productsService.findOne(productId)).product;
 
-    try {
-      const cart = await this.cartsService.findOne(cartId, true);
-      const product = await (
-        await this.productsService.findOne(productId)
-      ).product;
-
-      if (withDeleted) {
-        cartItem = await this.cartItemRepository.findOne({
-          relations: ['cart', 'product'],
-          withDeleted: true,
-          where: { id, cart, product },
-        });
-      } else {
-        cartItem = await this.cartItemRepository.findOne({
-          relations: ['cart', 'product'],
-          where: { id, cart, product },
-        });
-      }
-    } catch (error) {
-      throw error;
+    if (withDeleted) {
+      cartItem = await this.cartItemRepository.findOne({
+        relations: ['cart', 'product'],
+        withDeleted: true,
+        where: { id, cart, product },
+      });
+    } else {
+      cartItem = await this.cartItemRepository.findOne({
+        relations: ['cart', 'product'],
+        where: { id, cart, product },
+      });
     }
 
+    if (!withDeleted)
+      throw new NotFoundException('Không tìm thấy sản phẩm trong giỏ hàng');
     return cartItem;
   }
 
@@ -143,65 +122,49 @@ export class CartItemService {
     id: string,
     updateCartItemDto: UpdateCartItemDto,
   ): Promise<CartItem> {
-    let cartItemUpdated: CartItem;
-
     const { cartId, productId } = updateCartItemDto;
-    try {
-      let cartItem = await this.findOne(id, true, cartId, productId);
+    let cartItem = await this.findOne(id, true, cartId, productId);
+    const cart = await this.cartsService.findOne(cartId, true);
+    const product = (await this.productsService.findOne(productId)).product;
 
-      const cart = await this.cartsService.findOne(cartId, true);
-      const product = await (
-        await this.productsService.findOne(productId)
-      ).product;
-
-      // Kiểm tra số lượng sản phẩm còn đủ để thêm vào giỏ hàng hay không
-      if (product.amount === 0) {
-        throw new BadRequestException('Số lượng sản phẩm không đủ');
-      }
-
-      if (product.amount - updateCartItemDto.quantity < 0) {
-        throw new BadRequestException('Số lượng sản phẩm không đủ');
-      }
-
-      // tính toán cập nhập tăng hoặc giảm số lượng
-      if (updateCartItemDto.quantity !== 0 && !updateCartItemDto.quantity) {
-        updateCartItemDto.quantity = Number(cartItem.quantity) + 1;
-      } else {
-        updateCartItemDto.quantity = Number(updateCartItemDto.quantity);
-      }
-      cartItem = { ...cartItem, ...updateCartItemDto, cart, product };
-      cartItemUpdated = await this.cartItemRepository.save(cartItem);
-    } catch (error) {
-      throw error;
+    // Kiểm tra số lượng sản phẩm còn đủ để thêm vào giỏ hàng hay không
+    if (product.amount === 0) {
+      throw new BadRequestException('Số lượng sản phẩm không đủ');
     }
 
-    if (!cartItemUpdated)
-      throw new BadRequestException('Không thể cập nhập giỏ hàng');
-
-    return cartItemUpdated;
-  }
-
-  async remove(id: string, remove: boolean, cartId: string, productId: string) {
-    try {
-      const cartItem = await this.findOne(id, true, cartId, productId);
-      if (remove) {
-        await this.cartItemRepository.delete(cartItem.id);
-      } else {
-        await this.cartItemRepository.softDelete(cartItem.id);
-      }
-    } catch (error) {
-      throw error;
+    if (product.amount - updateCartItemDto.quantity < 0) {
+      throw new BadRequestException('Số lượng sản phẩm không đủ');
     }
+
+    // tính toán cập nhập tăng hoặc giảm số lượng
+    if (updateCartItemDto.quantity !== 0 && !updateCartItemDto.quantity) {
+      updateCartItemDto.quantity = Number(cartItem.quantity) + 1;
+    } else {
+      updateCartItemDto.quantity = Number(updateCartItemDto.quantity);
+    }
+    cartItem = { ...cartItem, ...updateCartItemDto, cart, product };
+    return await this.cartItemRepository.save(cartItem);
   }
 
-  async removeCartItemByCartId(cartId: string) {
-    const removed = await this.cartItemRepository
+  async remove(
+    id: string,
+    remove: boolean,
+    cartId: string,
+    productId: string,
+  ): Promise<DeleteResult | UpdateResult> {
+    const cartItem = await this.findOne(id, true, cartId, productId);
+    if (remove) {
+      return await this.cartItemRepository.delete(cartItem.id);
+    }
+    return await this.cartItemRepository.softDelete(cartItem.id);
+  }
+
+  async removeCartItemByCartId(cartId: string): Promise<DeleteResult> {
+    return await this.cartItemRepository
       .createQueryBuilder('cart_item')
       .delete()
       .from(CartItem)
       .where('cartId = :cartId', { cartId })
       .execute();
-
-    return { removedCount: removed.affected };
   }
 }

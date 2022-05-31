@@ -7,7 +7,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './entities/product.entity';
 
 import { ProductsRepository } from './products.repository';
 
@@ -22,69 +21,57 @@ export class ProductsService {
   ) {}
 
   async create(image: any, createProductDto: CreateProductDto) {
-    let productSaved: Product;
-    try {
-      const {
-        name,
-        model,
-        price,
-        original_price,
-        tutorial,
-        description,
-        platform,
-        status,
-        variant_id,
-        variant_title,
-        variant_text,
-        additional_information,
-        amount,
-        category_id,
-      } = createProductDto;
+    const {
+      name,
+      model,
+      price,
+      original_price,
+      tutorial,
+      description,
+      platform,
+      status,
+      variant_id,
+      variant_title,
+      variant_text,
+      additional_information,
+      amount,
+      category_id,
+    } = createProductDto;
 
-      if (!image?.filename) {
-        throw new BadRequestException('Không tìm thấ tệp');
-      }
-
-      const slug = name.split(' ').join('-');
-      const category = await this.categoriesService.findOne(category_id);
-
-      productSaved = await this.productsRepository.save({
-        name,
-        model,
-        original_price,
-        price,
-        slug: slug,
-        image: image?.filename,
-        tutorial,
-        description,
-        platform,
-        status: status || true,
-        variant_id,
-        variant_title,
-        variant_text,
-        additional_information,
-        amount,
-        category,
-      });
-
-      if (!productSaved) {
-        throw new BadRequestException('Không thể lưu sản phẩm');
-      }
-    } catch (error) {
-      return error;
+    if (!image?.filename) {
+      throw new BadRequestException('Không tìm thấy tệp');
     }
 
-    return productSaved;
+    const slug = name.split(' ').join('-');
+    const category = await this.categoriesService.findOne(category_id);
+
+    return await this.productsRepository.save({
+      name,
+      model,
+      original_price,
+      price,
+      slug: slug,
+      image: image?.filename,
+      tutorial,
+      description,
+      platform,
+      status: status || true,
+      variant_id,
+      variant_title,
+      variant_text,
+      additional_information,
+      amount,
+      category,
+    });
   }
 
   async findAll() {
-    const products = await this.productsRepository.find({ withDeleted: true });
-    return products;
+    return await this.productsRepository.find({ withDeleted: true });
   }
 
-  async findAllWithSearch(query) {
+  async findAllWithSearch(query: any) {
     // create builder.
-    const builder = await this.productsRepository.createQueryBuilder('product');
+    const builder = this.productsRepository.createQueryBuilder('product');
 
     // join with categories.
     if (query?.category_id) {
@@ -180,26 +167,27 @@ export class ProductsService {
   }
 
   async findOne(id: string) {
-    try {
-      const product = await this.productsRepository.findOne({
-        where: { id },
-      });
-      const productsByVariantId = await this.productsRepository.find({
-        where: {
-          variant_id: product.variant_id,
-        },
-      });
-      return {
-        product: product,
-        productsByVariantId,
-      };
-    } catch (error) {
-      throw error;
-    }
+    const product = await this.productsRepository.findOne({
+      where: { id },
+    });
+    if (!product) throw new NotFoundException('Không tìm thấy sản phẩm');
+    const productsByVariantId = await this.productsRepository.find({
+      where: {
+        variant_id: product.variant_id,
+      },
+    });
+    if (!productsByVariantId)
+      throw new NotFoundException(
+        `Không tìm thấy sản phẩm liên quan với '${product.name}'`,
+      );
+    return {
+      product: product,
+      productsByVariantId,
+    };
   }
 
-  async update(image, id: string, updateProductDto: UpdateProductDto) {
-    const product = await (await this.findOne(id)).product;
+  async update(image: any, id: string, updateProductDto: UpdateProductDto) {
+    const product = (await this.findOne(id)).product;
     const categoryId = updateProductDto.category_id;
     const category = await this.categoriesService.findOne(categoryId);
 
@@ -228,9 +216,7 @@ export class ProductsService {
     product.amount = updateProductDto.amount;
     product.category = category;
 
-    const productSaved = await this.productsRepository.save(product);
-
-    return productSaved;
+    return await this.productsRepository.save(product);
   }
 
   async reduceTheNumberOfProduct(
@@ -238,40 +224,24 @@ export class ProductsService {
     quantity: number,
     isDown: boolean,
   ) {
-    let data;
-    try {
-      const product = await (await this.findOne(id)).product;
-      if (!product) {
-        throw new NotFoundException('Không tìm thấy sản phẩm');
-      }
-      if (isDown) {
-        if (product.amount >= quantity) {
-          product.amount = product.amount - quantity;
-          data = await this.productsRepository.save(product);
-        } else {
-          throw new BadRequestException('Lỗi yêu cầu');
-        }
-      } else {
-        product.amount = product.amount + quantity;
-        data = await this.productsRepository.save(product);
-      }
-    } catch (error) {
-      throw error;
-    }
+    const product = (await this.findOne(id)).product;
 
-    return data;
+    if (isDown) {
+      if (product.amount < quantity) {
+        throw new BadRequestException('Không thể cập nhập số lượng  sản phẩm');
+      }
+      product.amount = product.amount - quantity;
+      return await this.productsRepository.save(product);
+    }
+    product.amount = product.amount + quantity;
+    return await this.productsRepository.save(product);
   }
 
   async remove(id: string, remove: boolean) {
-    const product = await (await this.findOne(id)).product;
-    if (!product) {
-      throw new NotFoundException('Không tìm thấy sản phẩm');
-    }
-
+    const product = (await this.findOne(id)).product;
     if (remove) {
-      await this.productsRepository.delete(product.id);
-    } else {
-      await this.productsRepository.softDelete(product.id);
+      return await this.productsRepository.delete(product.id);
     }
+    return await this.productsRepository.softDelete(product.id);
   }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { User } from 'src/users/entities/user.entity';
 import { OrdersService } from 'src/orders/orders.service';
@@ -21,12 +21,9 @@ export class StripeService {
   }
 
   async checkoutSessions(user: User, orderId: string) {
-    let checkoutSessions;
+    let checkoutSessions: any;
     try {
       const order = await this.ordersService.findOne(orderId, false);
-      if (!order) {
-        throw new BadRequestException('Bạn không có phiếu thanh toán');
-      }
 
       // checkout is any product not enough quantity for checkout.
       const issueItems = order.orderItems.filter(

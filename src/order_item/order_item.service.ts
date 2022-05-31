@@ -1,6 +1,10 @@
 import { Connection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { Order } from 'src/orders/entities/order.entity';
 import { OrderItem } from './entities/order_item.entity';
@@ -73,7 +77,7 @@ export class OrderItemService {
   }
 
   async createOrderItem(order: Order, cartItems: CartItem[]) {
-    await this.createMany(order, cartItems);
+    return await this.createMany(order, cartItems);
   }
 
   async removeMany(orderItems: OrderItem[]) {
@@ -89,13 +93,6 @@ export class OrderItemService {
             'Thực hiện tính toán sản phẩm trong giỏ hàng không thành công',
           );
         }
-
-        // khi hủy hóa đơn thì tính cập nhập lại số lượng sản phẩm đã thêm vào giỏ hàng.
-        // await this.productsService.reduceTheNumberOfProduct(
-        //   item.product.id,
-        //   item.quantity,
-        //   false,
-        // );
       });
 
       await queryRunner.commitTransaction();
@@ -126,29 +123,25 @@ export class OrderItemService {
     withDeleted: boolean,
     orderId: string,
     productId: string,
-  ) {
-    let orderItem: OrderItem;
+  ): Promise<OrderItem> {
+    const builder = this.orderItemRepository.createQueryBuilder('order_item');
 
-    try {
-      const builder = this.orderItemRepository.createQueryBuilder('order_item');
+    builder
+      .select('order_item')
+      .leftJoinAndSelect('order_item.product', 'product')
+      .leftJoinAndSelect('order_item.order', 'order')
+      .andWhere('order_item.productId = :productId', { productId })
+      .andWhere('order_item.orderId = :orderId', { orderId });
 
-      builder
-        .select('order_item')
-        .leftJoinAndSelect('order_item.product', 'product')
-        .leftJoinAndSelect('order_item.order', 'order')
-        .andWhere('order_item.productId = :productId', { productId })
-        .andWhere('order_item.orderId = :orderId', { orderId });
-
-      if (withDeleted) {
-        builder.withDeleted();
-        orderItem = await builder.getOne();
-      } else {
-        orderItem = await builder.getOne();
-      }
-    } catch (error) {
-      throw error;
+    if (withDeleted) {
+      builder.withDeleted();
+    } else {
     }
 
+    const orderItem = await builder.getOne();
+
+    if (!orderItem)
+      throw new NotFoundException('Không tìm thấy sản phẩm trong hóa đơn');
     return orderItem;
   }
 
@@ -156,38 +149,37 @@ export class OrderItemService {
     orderItemId: string,
     updateOrderItemDto: UpdateOrderItemDto,
   ) {
-    let orderItemUpdated: OrderItem;
-
     const { orderId, productId } = updateOrderItemDto;
-    try {
-      let orderItem = await this.findOne(orderItemId, true, orderId, productId);
 
-      // // Kiểm tra số lượng sản phẩm còn đủ để thêm vào giỏ hàng hay không
-      // if (orderItem.product.amount === 0) {
-      //   throw new BadRequestException('Số lượng sản phẩm không đủ');
-      // }
+    let orderItem = await this.findOne(orderItemId, true, orderId, productId);
 
-      // if (orderItem.product.amount - updateOrderItemDto.quantity < 0) {
-      //    throw new BadRequestException(
-      //     `Sản phẩm ${orderItem?.product?.name} chỉ còn ${orderItem?.product?.amount}. Vui lòng thay đổi số lượng để phù hợp hơn`,
-      //   );
-      // }
-
-      // tính toán cập nhập tăng hoặc giảm số lượng
-      if (updateOrderItemDto.quantity !== 0 && !updateOrderItemDto.quantity) {
-        updateOrderItemDto.quantity = Number(orderItem.quantity) + 1;
-      } else {
-        updateOrderItemDto.quantity = Number(updateOrderItemDto.quantity);
-      }
-      orderItem = { ...orderItem, ...updateOrderItemDto };
-      orderItemUpdated = await this.orderItemRepository.save(orderItem);
-    } catch (error) {
-      throw error;
+    // tính toán cập nhập tăng hoặc giảm số lượng
+    if (updateOrderItemDto.quantity !== 0 && !updateOrderItemDto.quantity) {
+      updateOrderItemDto.quantity = Number(orderItem.quantity) + 1;
+    } else {
+      updateOrderItemDto.quantity = Number(updateOrderItemDto.quantity);
     }
+    orderItem = { ...orderItem, ...updateOrderItemDto };
+    return await this.orderItemRepository.save(orderItem);
+  }
 
-    if (!orderItemUpdated)
-      throw new BadRequestException('Không thể cập nhập giỏ hàng');
+  async findLimitBestSellers(query) {
+    const builder = this.orderItemRepository.createQueryBuilder('order_item');
+    builder
+      .select('SUM(order_item.quantity) AS total_of_quantity, product.*')
+      .leftJoinAndSelect('order_item.product', 'product')
+      .addGroupBy('order_item.productId')
+      .addGroupBy('product.id');
+    // .addGroupBy('order_item.id');
 
-    return orderItemUpdated;
+    // pagination
+    const page = parseInt(query?.page) || 1;
+    const perPage = parseInt(query?.per_page) || 8;
+    //* OFFSET may not work as you may expect if you are using complex queries with joins or subqueries.
+    //* If you are using pagination, it's recommended to use *skip* instead.
+    // builder.offset((page - 1) * perPage).limit(perPage);
+    builder.skip((page - 1) * perPage).take(perPage);
+
+    return await builder.getRawMany();
   }
 }

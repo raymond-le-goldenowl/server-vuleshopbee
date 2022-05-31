@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from 'src/users/decorators/roles.decorator';
@@ -28,5 +30,10 @@ export class OrderItemController {
     @Body() updateOrderItemDto: UpdateOrderItemDto,
   ) {
     return this.orderItemService.updateQuantityOfItem(id, updateOrderItemDto);
+  }
+
+  @Get('/best-sellers')
+  getBestSellersLimit(@Query() query) {
+    return this.orderItemService.findLimitBestSellers(query);
   }
 }
