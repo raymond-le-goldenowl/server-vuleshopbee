@@ -59,14 +59,4 @@ export class ProductsController {
   remove(@Param('id') id: string, @Query('remove') remove: boolean) {
     return this.productsService.remove(id, remove);
   }
-
-  @Get('/image/:imageName')
-  getUProductImage(
-    @Res() res,
-    @Param('imageName') imageName: string,
-  ): Observable<any> {
-    return of(
-      res.sendFile(join(process.cwd(), 'uploads/products/' + imageName)),
-    );
-  }
 }

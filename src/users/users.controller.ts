@@ -39,15 +39,13 @@ export class UsersController {
   }
 
   @Post('/facebook')
-  // @UseGuards(AuthGuard('facebook'))
   async facebookLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
-    return this.usersService.createResDataFacebookLogin(signInFbDto);
+    return this.usersService.signUpWithSocialMedia(signInFbDto);
   }
 
   @Post('/google')
-  // @UseGuards(AuthGuard('google'))
   async googleLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
-    return this.usersService.createResDataGoogleLogin(signInFbDto);
+    return this.usersService.signUpWithSocialMedia(signInFbDto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -62,27 +60,7 @@ export class UsersController {
   @Roles(Role.Admin, Role.User)
   async getProfile(@GetCurrentUserDecorator() user: User) {
     // remove properties not use
-    delete user.cart.user;
-    delete user.cart.cartItem;
-    delete user.cart.created_at;
-    delete user.cart.deleted_at;
-    delete user.cart.updated_at;
-    delete user.cart.accept_guaratee_policy;
-
-    delete user.role.created_at;
-    delete user.role.deleted_at;
-    delete user.role.updated_at;
-
-    delete user.auth_type;
-    delete user.citizen_identity;
-    delete user.created_at;
-    delete user.deleted_at;
-    delete user.password;
-    delete user.public;
-    delete user.updated_at;
-    delete user.username;
-
-    return user;
+    return this.usersService.removePrivateUserData(user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -91,15 +69,5 @@ export class UsersController {
   @UseInterceptors(FileInterceptor(config.fieldName, config.localOptions))
   updateImage(@UploadedFile() image, @GetCurrentUserDecorator() user) {
     return this.usersService.updateImage(user, image);
-  }
-
-  @Get('/image/avatar/:imageName')
-  getUserAvatar(
-    @Res() res,
-    @Param('imageName') imageName: string,
-  ): Observable<any> {
-    return of(
-      res.sendFile(join(process.cwd(), 'uploads/avatars/' + imageName)),
-    );
   }
 }

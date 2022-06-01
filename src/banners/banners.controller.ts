@@ -94,17 +94,4 @@ export class BannersController {
   delete(@Param('id') id: string, @Query('remove') remove: boolean) {
     return this.bannersService.delete(id, remove);
   }
-
-  /**
-   * Get Banners Images
-   * @param imagePath name of image
-   * @param res response
-   * @returns image file
-   */
-  @Get('images/:imagePath')
-  serveAvatar(@Param('imagePath') imagePath, @Res() res): Observable<any> {
-    return of(
-      res.sendFile(join(process.cwd(), 'uploads/banners/' + imagePath)),
-    );
-  }
 }

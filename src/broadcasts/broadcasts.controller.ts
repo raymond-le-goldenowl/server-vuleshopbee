@@ -81,15 +81,4 @@ export class BroadcastsController {
   delete(@Param('id') id: string, @Query('remove') remove: boolean) {
     return this.broadcastsService.delete(id, remove);
   }
-
-  /**
-   * Get Broadcasts Images
-   * @param imagePath name of image
-   * @param res response
-   * @returns image file
-   */
-  @Get('images/:imagePath')
-  serveAvatar(@Param('imagePath') imagePath, @Res() res): Observable<any> {
-    return of(res.sendFile(join(process.cwd(), imagePath)));
-  }
 }

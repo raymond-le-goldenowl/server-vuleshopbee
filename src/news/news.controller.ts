@@ -91,15 +91,4 @@ export class NewsController {
   delete(@Param('id') id: string, @Query('remove') remove: boolean) {
     return this.newsService.delete(id, remove);
   }
-
-  /**
-   * Get News Images
-   * @param imagePath name of image
-   * @param res response
-   * @returns image file
-   */
-  @Get('images/:imagePath')
-  serveAvatar(@Param('imagePath') imagePath, @Res() res): Observable<any> {
-    return of(res.sendFile(join(process.cwd(), 'uploads/news/' + imagePath)));
-  }
 }
