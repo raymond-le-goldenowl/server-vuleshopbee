@@ -30,19 +30,19 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   full_name: string;
 
-  @Column({ type: 'char', length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   username: string;
 
-  @Column({ type: 'char', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   password: string;
 
-  @Column({ type: 'char', length: 320 })
+  @Column({ type: 'varchar', length: 320 })
   email: string;
 
   @Column({ type: 'text', nullable: true })
   avatar: string;
 
-  @Column({ type: 'char', length: 15, nullable: true })
+  @Column({ type: 'varchar', length: 15, nullable: true })
   citizen_identity: string;
 
   @Column({ type: 'boolean', default: true })

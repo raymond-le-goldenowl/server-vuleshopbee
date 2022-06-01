@@ -13,24 +13,29 @@ export class SignUpDto {
   @IsNotEmpty()
   @Length(2, 255)
   @NotContains(' ', {
-    message: 'Bad username',
+    message: 'Username must not contains spaces',
   })
   @NotContains('\n')
+  @Matches(/^[a-z0-9_\.]+$/, {
+    message: ` Username just contains Lowercase Letters (a-z), numbers (0-9), dots (.) and underscores (_)`,
+  })
   username: string;
 
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  @NotContains(' ')
+  @NotContains(' ', {
+    message: 'Email must not contains spaces',
+  })
   email: string;
 
   @IsString()
   @MinLength(8)
   @Length(8, 255)
   @NotContains(' ')
-  // password will contain at lesat 1 upper case letter, least 1 lower case letter, 1 number or special character
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'Password too weak',
+    message:
+      'Password must contain at lesat 1 upper case letter, least 1 lower case letter, 1 number or special character',
   })
   password: string;
 }

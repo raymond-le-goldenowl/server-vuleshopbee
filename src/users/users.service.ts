@@ -41,13 +41,7 @@ export class UsersService {
       where: { email },
     });
 
-    if (!userByEmail) {
-      throw new UnauthorizedException(
-        'Không tìm thấy người dùng với email = ' + email,
-      );
-    }
-
-    return trimSingleObjectValue(userByEmail) as User;
+    return userByEmail;
   }
 
   async getUserByEmailAndAuthType(
@@ -63,15 +57,13 @@ export class UsersService {
       return null;
     }
 
-    return trimSingleObjectValue(userByEmailAndAuthType) as User;
+    return userByEmailAndAuthType;
   }
 
   signToken(user: User) {
     const payload = {
       id: user.id,
-      username: user.username,
       email: user.email,
-      role: user.role,
       provider: user.auth_type,
     };
     return this.jwtService.sign(
@@ -83,38 +75,47 @@ export class UsersService {
   }
 
   async signup(signUpDto: SignUpDto) {
-    const { password, email } = signUpDto;
+    // destruct data
+    const { password, email, username } = signUpDto;
 
+    // find user by email to make sure user was exists
     const user = await this.getUserByEmail(email);
 
+    // throw conflict error if user exists
     if (user) {
       throw new ConflictException('Người dùng đã tồn tại');
     }
-
-    const cart = await this.createCartForUser();
-    const role = await this.roleService.findOneByText('user', true);
 
     // generate salt and hash password
     const saltRounds = 10;
     const salt = bcrypt.genSaltSync(saltRounds);
     const hashedPassword = bcrypt.hashSync(password, salt);
-    signUpDto.password = hashedPassword;
+    const hash_password = hashedPassword;
 
-    // create customer
+    // Create relationship data for user
+    const cart = await this.createCartForUser();
+    const role = await this.roleService.findOneByText('user', true);
     const stripeCustomer = await this.stripeService.createCustomer(
-      signUpDto.username,
-      signUpDto.email,
+      username,
+      email,
     );
 
     // create and save username, password, email.
     const userSaved: User = await this.usersRepository.save({
-      ...signUpDto,
+      email,
+      password: hash_password,
+      username,
       role,
       cart,
       stripeCustomerId: stripeCustomer.id,
     });
 
     delete userSaved.password;
+    delete userSaved.role.id;
+    delete userSaved.role.created_at;
+    delete userSaved.role.updated_at;
+    delete userSaved.role.deleted_at;
+
     const accessToken = this.signToken(userSaved);
     return { accessToken };
   }
@@ -122,6 +123,11 @@ export class UsersService {
   async signin(signInDto: SignInDto) {
     const { password, email } = signInDto;
     const userByEmail: User = await this.getUserByEmail(email);
+    if (!userByEmail) {
+      throw new UnauthorizedException(
+        'Không tìm thấy người dùng với email = ' + email,
+      );
+    }
 
     const match = bcrypt.compareSync(password, userByEmail.password);
     if (!match) throw new UnauthorizedException('Mật khẩu không dúng');
@@ -175,7 +181,11 @@ export class UsersService {
 
   async validateUser(email: string): Promise<User> {
     const userByEmail: User = await this.getUserByEmail(email);
-
+    if (!userByEmail) {
+      throw new UnauthorizedException(
+        'Không tìm thấy người dùng với email = ' + email,
+      );
+    }
     delete userByEmail.password;
 
     return userByEmail;

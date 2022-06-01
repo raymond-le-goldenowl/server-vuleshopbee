@@ -22,6 +22,7 @@ import { config } from './file-interceptor.config';
 import { Roles } from './decorators/roles.decorator';
 import { GetCurrentUserDecorator } from './decorators/get-user.decorator';
 import { SignInFbDto } from './dto/sigin-fb.dto';
+import { User } from './entities/user.entity';
 
 @Controller('v1/users')
 export class UsersController {
@@ -59,7 +60,28 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
   @Roles(Role.Admin, Role.User)
-  getProfile(@GetCurrentUserDecorator() user) {
+  async getProfile(@GetCurrentUserDecorator() user: User) {
+    // remove properties not use
+    delete user.cart.user;
+    delete user.cart.cartItem;
+    delete user.cart.created_at;
+    delete user.cart.deleted_at;
+    delete user.cart.updated_at;
+    delete user.cart.accept_guaratee_policy;
+
+    delete user.role.created_at;
+    delete user.role.deleted_at;
+    delete user.role.updated_at;
+
+    delete user.auth_type;
+    delete user.citizen_identity;
+    delete user.created_at;
+    delete user.deleted_at;
+    delete user.password;
+    delete user.public;
+    delete user.updated_at;
+    delete user.username;
+
     return user;
   }
 

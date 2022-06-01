@@ -21,9 +21,9 @@ async function bootstrap() {
       crossOriginResourcePolicy: false,
     }),
   );
-  app.useGlobalPipes(new ValidationPipe());
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new HttpExceptionFilter(httpAdapterHost));
+  app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
     .setTitle('vuleshopbee-api')

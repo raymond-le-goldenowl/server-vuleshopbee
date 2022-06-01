@@ -9,7 +9,9 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
+import { JsonWebTokenError } from 'jsonwebtoken';
 import { Request } from 'express';
 import {
   QueryFailedError,
@@ -35,7 +37,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     Logger.error(
       message,
-      // (exception as any).stack,
+      (exception as any).stack,
       `${httpAdapter.getRequestMethod(request)} ${httpAdapter.getRequestUrl(
         request,
       )}`,
@@ -45,6 +47,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     switch (exception.constructor) {
       case HttpException:
         httpStatus = (exception as HttpException).getStatus();
+        break;
+      case BadRequestException:
+        httpStatus = (exception as BadRequestException).getStatus();
+        message =
+          (exception as any)?.response?.message ||
+          (exception as BadRequestException).message;
+        code = (exception as any).code;
+        break;
+      case JsonWebTokenError:
+        httpStatus = (exception as any).getStatus();
+        message = (exception as JsonWebTokenError).message;
+        code = (exception as any).code;
         break;
       case UnauthorizedException:
         httpStatus = (exception as UnauthorizedException).getStatus();
