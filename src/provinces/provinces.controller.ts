@@ -26,15 +26,11 @@ export class ProvincesController {
     return this.provincesService.create(createProvinceDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get()
   findAll() {
     return this.provincesService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.provincesService.findOne(+id);

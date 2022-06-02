@@ -66,6 +66,7 @@ export class StripeService {
     } catch (error) {
       throw error;
     }
+
     return { checkoutSessions, orderId };
   }
 

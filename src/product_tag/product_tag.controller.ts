@@ -16,8 +16,6 @@ export class ProductTagController {
     return this.productTagService.create(createProductTagDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get(':productId')
   findProductTagsByProduct(@Param('productId') productId) {
     return this.productTagService.findProductTagsByProduct(productId);

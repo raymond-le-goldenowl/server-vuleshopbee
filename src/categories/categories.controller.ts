@@ -27,15 +27,11 @@ export class CategoriesController {
     return this.categoriesService.create(createCategoryDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get()
   findAll() {
     return this.categoriesService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.categoriesService.findOne(id);

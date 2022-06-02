@@ -8,6 +8,7 @@ import {
   DeleteDateColumn,
   PrimaryGeneratedColumn,
   Column,
+  OneToMany,
 } from 'typeorm';
 
 import { Cart } from 'src/carts/entities/cart.entity';
@@ -39,7 +40,7 @@ export class CartItem {
   })
   deleted_at: Date;
 
-  @OneToOne(() => Product, (product) => product.cartItem, {
+  @ManyToOne(() => Product, (product) => product.cartItem, {
     eager: true,
   })
   @JoinColumn()

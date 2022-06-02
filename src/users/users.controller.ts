@@ -28,22 +28,16 @@ import { SignInWithSocialDto } from './dto/sigin-social.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Post('/signup')
   signupLocal(@Body() signUpDto: SignUpDto) {
     return this.usersService.signup(signUpDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Post('/signin')
   signinLocal(@Body() signInDto: SignInDto) {
     return this.usersService.signin(signInDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Post('/facebook')
   async facebookLoginRedirect(
     @Body() signInFbDto: SignInWithSocialDto,
@@ -51,8 +45,6 @@ export class UsersController {
     return this.usersService.signUpWithSocialMedia(signInFbDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Post('/google')
   async googleLoginRedirect(
     @Body() signInFbDto: SignInWithSocialDto,
@@ -61,16 +53,12 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
-  @UseGuards(JwtAuthGuard)
   @Post('/logout')
   @Roles(Role.Admin, Role.User)
-  logout(@GetCurrentUserDecorator() user) {
+  logout(@GetCurrentUserDecorator() user: User) {
     return this.usersService.logout(user);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
   @Roles(Role.Admin, Role.User)
@@ -80,12 +68,10 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
-  @UseGuards(JwtAuthGuard)
   @Post('/profile/image')
   @Roles(Role.Admin, Role.User)
   @UseInterceptors(FileInterceptor(config.fieldName, config.localOptions))
-  updateImage(@UploadedFile() image, @GetCurrentUserDecorator() user) {
+  updateImage(@UploadedFile() image, @GetCurrentUserDecorator() user: User) {
     return this.usersService.updateImage(user, image);
   }
 }

@@ -11,6 +11,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsRepository } from './products.repository';
 
 import { CategoriesService } from 'src/categories/categories.service';
+import { In } from 'typeorm';
+import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductsService {
@@ -67,6 +69,13 @@ export class ProductsService {
 
   async findAll() {
     return await this.productsRepository.find({ withDeleted: true });
+  }
+
+  async findAllByIds(ids: string[]): Promise<Product[]> {
+    return await this.productsRepository.find({
+      where: { id: In(ids) },
+      withDeleted: true,
+    });
   }
 
   async findAllWithSearch(query: any) {

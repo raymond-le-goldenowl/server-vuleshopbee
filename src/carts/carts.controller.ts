@@ -26,8 +26,6 @@ export class CartsController {
     return this.cartsService.create(createCartDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get()
   findAll(@Query('with_deleted') withDeleted: boolean) {
     return this.cartsService.findAll(withDeleted);
@@ -40,8 +38,6 @@ export class CartsController {
     return this.cartsService.findOneCartByAccessToken(user);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get(':id')
   findOne(
     @Param('id') id: string,

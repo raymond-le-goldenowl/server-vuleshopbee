@@ -35,8 +35,6 @@ export class OrderItemController {
     return this.orderItemService.updateQuantityOfItem(id, updateOrderItemDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get('/best-sellers')
   getBestSellersLimit(@Query() query) {
     return this.orderItemService.findLimitBestSellers(query);

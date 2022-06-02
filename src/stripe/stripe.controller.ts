@@ -1,8 +1,6 @@
 import { Controller, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { GetCurrentUserDecorator } from 'src/users/decorators/get-user.decorator';
-import { Roles } from 'src/users/decorators/roles.decorator';
 import { User } from 'src/users/entities/user.entity';
-import { Role } from 'src/users/enums/role.enum';
 import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
 import { StripeService } from './stripe.service';
 
@@ -11,7 +9,6 @@ export class StripeController {
   constructor(private readonly stripeService: StripeService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Post('/create-payment-intent/:orderId')
   async createPaymentIntent(
     @GetCurrentUserDecorator() user: User,
@@ -21,7 +18,6 @@ export class StripeController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Post('/retrieve-payment-intent/:cs')
   async retrievePaymentIntent(
     @GetCurrentUserDecorator() user: User,

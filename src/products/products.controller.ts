@@ -33,22 +33,21 @@ export class ProductsController {
     return this.productsService.create(image, createProductDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get('/filters')
   filterProducts(@Query() query) {
     return this.productsService.findAllWithSearch(query);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.Admin, Role.User)
+  @Post('/ids')
+  findAllByIds(@Body('ids') ids: string[]) {
+    return this.productsService.findAllByIds(ids);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);
