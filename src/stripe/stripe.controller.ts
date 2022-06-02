@@ -10,9 +10,9 @@ import { StripeService } from './stripe.service';
 export class StripeController {
   constructor(private readonly stripeService: StripeService) {}
 
-  @Post('/create-payment-intent/:orderId')
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
+  @Post('/create-payment-intent/:orderId')
   async createPaymentIntent(
     @GetCurrentUserDecorator() user: User,
     @Param('orderId') orderId: string,
@@ -20,9 +20,9 @@ export class StripeController {
     return await this.stripeService.checkoutSessions(user, orderId);
   }
 
-  @Post('/retrieve-payment-intent/:cs')
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
+  @Post('/retrieve-payment-intent/:cs')
   async retrievePaymentIntent(
     @GetCurrentUserDecorator() user: User,
     @Param('cs') cs: string,

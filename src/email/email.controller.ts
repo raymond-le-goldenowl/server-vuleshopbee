@@ -1,10 +1,15 @@
-import { Controller, Post, Query } from '@nestjs/common';
+import { Controller, Post, Query, UseGuards } from '@nestjs/common';
+import { Roles } from 'src/users/decorators/roles.decorator';
+import { Role } from 'src/users/enums/role.enum';
+import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
 import { EmailService } from './email.service';
 
 @Controller('v1/email')
 export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Post('send-mail')
   sendMail(@Query('mail') mail) {
     const message = {

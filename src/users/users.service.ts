@@ -15,7 +15,6 @@ import { Cart } from 'src/carts/entities/cart.entity';
 
 import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
-import { SignInFbDto } from './dto/sigin-fb.dto';
 import { CreateCartDto } from 'src/carts/dto/create-cart.dto';
 
 import { UsersRepository } from './users.repository';
@@ -24,6 +23,8 @@ import { RolesService } from 'src/roles/roles.service';
 import { CartsService } from 'src/carts/carts.service';
 import { StripeService } from 'src/stripe/stripe.service';
 import { ISocialMediaData } from './interfaces/social-media.interface';
+import { Role } from './enums/role.enum';
+import { SignInWithSocialDto } from './dto/sigin-social.dto';
 
 @Injectable()
 export class UsersService {
@@ -220,7 +221,7 @@ export class UsersService {
     return this.removePrivateUserData(userUpdated);
   }
 
-  async signUpWithSocialMedia(user: SignInFbDto) {
+  async signUpWithSocialMedia(user: SignInWithSocialDto) {
     if (!user) {
       throw new BadRequestException('Không tìm thấy thông tin người dùng');
     }
@@ -235,7 +236,7 @@ export class UsersService {
 
     if (!userByEmailAndAuthType) {
       const cart = await this.createCartForUser();
-      const role = await this.roleService.findOneByText('user', true);
+      const role = await this.roleService.findOneByText(Role.User, true);
 
       // create customer
       const stripeCustomer = await this.stripeService.createCustomer(
@@ -263,7 +264,7 @@ export class UsersService {
       userSaved = await this.usersRepository.save(userByEmailAndAuthType);
     }
 
-    // remove data not need to show
+    // TODO:  remove data not need to show. lodash
     const userRefactored: User = this.removePrivateUserData(userSaved);
 
     const accessToken = this.signToken(userRefactored);

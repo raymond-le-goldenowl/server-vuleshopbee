@@ -17,6 +17,9 @@ import { OrderItemService } from './order_item.service';
 @Controller('v1/order-item')
 export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Delete(':id')
   deleteById(@Param('id') id: string) {
     return this.orderItemService.removeById(id);
@@ -32,6 +35,8 @@ export class OrderItemController {
     return this.orderItemService.updateQuantityOfItem(id, updateOrderItemDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Get('/best-sellers')
   getBestSellersLimit(@Query() query) {
     return this.orderItemService.findLimitBestSellers(query);

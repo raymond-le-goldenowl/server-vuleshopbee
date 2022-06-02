@@ -6,30 +6,42 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ProvincesService } from './provinces.service';
 import { CreateProvinceDto } from './dto/create-province.dto';
 import { UpdateProvinceDto } from './dto/update-province.dto';
+import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
+import { Role } from 'src/users/enums/role.enum';
+import { Roles } from 'src/users/decorators/roles.decorator';
 
 @Controller('v1/provinces')
 export class ProvincesController {
   constructor(private readonly provincesService: ProvincesService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Post()
   create(@Body() createProvinceDto: CreateProvinceDto) {
     return this.provincesService.create(createProvinceDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Get()
   findAll() {
     return this.provincesService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.provincesService.findOne(+id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -38,6 +50,8 @@ export class ProvincesController {
     return this.provincesService.update(+id, updateProvinceDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.provincesService.remove(+id);

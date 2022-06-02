@@ -82,10 +82,4 @@ export class StripeService {
 
     return session;
   }
-
-  // not used.
-  async retrieveListLineItems(clientSecret: string) {
-    const session = this.stripe.checkout.sessions.listLineItems(clientSecret);
-    return session;
-  }
 }

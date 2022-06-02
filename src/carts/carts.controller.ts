@@ -27,21 +27,21 @@ export class CartsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Get()
   findAll(@Query('with_deleted') withDeleted: boolean) {
     return this.cartsService.findAll(withDeleted);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Get('/one')
   findOneCartByAccessToken(@GetCurrentUserDecorator() user) {
     return this.cartsService.findOneCartByAccessToken(user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Get(':id')
   findOne(
     @Param('id') id: string,

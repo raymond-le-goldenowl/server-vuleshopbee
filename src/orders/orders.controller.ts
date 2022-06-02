@@ -25,7 +25,7 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Post()
   create(
     @Body() createOrderDto: CreateOrderDto,
@@ -35,21 +35,21 @@ export class OrdersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Get()
   findAll(@GetCurrentUserDecorator() user: User) {
     return this.ordersService.findAll(user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Get('/filter')
   filter(@Query() query, @GetCurrentUserDecorator() user: User) {
     return this.ordersService.filter(query, user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Get(':id')
   findOne(
     @Param('id') id: string,
@@ -59,7 +59,7 @@ export class OrdersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -70,7 +70,7 @@ export class OrdersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Patch('/quantity/:id')
   updateBeforeCheckout(
     @Param('id') orderId: string,
@@ -89,7 +89,7 @@ export class OrdersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin, Role.User)
   @Delete(':id')
   remove(@Param('id') id: string, @Query('remove') remove: boolean) {
     return this.ordersService.remove(id, remove);

@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-export class SignInFbDto {
+export class SignInWithSocialDto {
   @IsString()
   @IsNotEmpty()
   id: string;

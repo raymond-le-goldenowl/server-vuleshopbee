@@ -21,33 +21,47 @@ import { JwtAuthGuard } from './guards/jwt.guard';
 import { config } from './file-interceptor.config';
 import { Roles } from './decorators/roles.decorator';
 import { GetCurrentUserDecorator } from './decorators/get-user.decorator';
-import { SignInFbDto } from './dto/sigin-fb.dto';
 import { User } from './entities/user.entity';
+import { SignInWithSocialDto } from './dto/sigin-social.dto';
 
 @Controller('v1/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Post('/signup')
   signupLocal(@Body() signUpDto: SignUpDto) {
     return this.usersService.signup(signUpDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Post('/signin')
   signinLocal(@Body() signInDto: SignInDto) {
     return this.usersService.signin(signInDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Post('/facebook')
-  async facebookLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
+  async facebookLoginRedirect(
+    @Body() signInFbDto: SignInWithSocialDto,
+  ): Promise<any> {
     return this.usersService.signUpWithSocialMedia(signInFbDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Post('/google')
-  async googleLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
+  async googleLoginRedirect(
+    @Body() signInFbDto: SignInWithSocialDto,
+  ): Promise<any> {
     return this.usersService.signUpWithSocialMedia(signInFbDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @UseGuards(JwtAuthGuard)
   @Post('/logout')
   @Roles(Role.Admin, Role.User)
@@ -56,6 +70,8 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
+  @UseGuards(JwtAuthGuard)
   @Get('/profile')
   @Roles(Role.Admin, Role.User)
   async getProfile(@GetCurrentUserDecorator() user: User) {
@@ -63,6 +79,8 @@ export class UsersController {
     return this.usersService.removePrivateUserData(user);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @UseGuards(JwtAuthGuard)
   @Post('/profile/image')
   @Roles(Role.Admin, Role.User)

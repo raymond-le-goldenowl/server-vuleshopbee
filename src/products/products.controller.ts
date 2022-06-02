@@ -10,41 +10,52 @@ import {
   Controller,
   UseInterceptors,
   UploadedFile,
-  Res,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { config } from './file-interceptor.config';
-import { Observable, of } from 'rxjs';
-import { join } from 'path';
+import { JwtAuthGuard } from 'src/users/guards/jwt.guard';
+import { Role } from 'src/users/enums/role.enum';
+import { Roles } from 'src/users/decorators/roles.decorator';
 
 @Controller('v1/products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin)
   @UseInterceptors(FileInterceptor(config.fieldName, config.localOptions))
   @Post()
   create(@UploadedFile() image, @Body() createProductDto: CreateProductDto) {
     return this.productsService.create(image, createProductDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Get('/filters')
   filterProducts(@Query() query) {
     return this.productsService.findAllWithSearch(query);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin, Role.User)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin)
   @UseInterceptors(FileInterceptor(config.fieldName, config.localOptions))
   @Patch(':id')
   update(
@@ -55,6 +66,8 @@ export class ProductsController {
     return this.productsService.update(image, id, updateProductDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin)
   @Delete(':id')
   remove(@Param('id') id: string, @Query('remove') remove: boolean) {
     return this.productsService.remove(id, remove);
