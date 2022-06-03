@@ -51,10 +51,10 @@ export class User {
   @Column({ type: 'varchar', length: 45, default: 'default' })
   auth_type: string;
 
-  @Column({ type: 'char', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   user_google_id: string;
 
-  @Column({ type: 'char', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   user_facebook_id: string;
 
   @Column({ type: 'boolean', default: true })

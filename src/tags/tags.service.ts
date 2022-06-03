@@ -24,7 +24,6 @@ export class TagsService {
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    let savedProductTag = null;
     try {
       const objectProject = await this.productsService.findOne(
         createTagDto.product_id,
@@ -38,44 +37,46 @@ export class TagsService {
         },
       });
 
-      productsByVariantId.forEach(async (product) => {
-        const productTag =
-          await this.productTagService.productTagRepository.findOne({
-            where: {
-              tag,
-              product,
-            },
-          });
-        let saved: Tag = tag;
-        if (!tag && !productTag) {
-          saved = await this.tagsRepository.save({
-            text: createTagDto.text,
-          });
-        }
-
-        if (product && saved) {
-          if (product.id === createTagDto.product_id) {
-            savedProductTag = await this.productTagService.create({
-              product: product,
-              tag: saved,
+      Promise.all(
+        productsByVariantId.map(async (product) => {
+          const productTag =
+            await this.productTagService.productTagRepository.findOne({
+              where: {
+                tag,
+                product,
+              },
             });
-          } else {
-            await this.productTagService.create({
-              product: product,
-              tag: saved,
+          let saved: Tag = tag;
+          if (!tag && !productTag) {
+            saved = await this.tagsRepository.save({
+              text: createTagDto.text,
             });
           }
-        }
-      });
+
+          if (product && saved) {
+            if (product.id === createTagDto.product_id) {
+              return await this.productTagService.create({
+                product: product,
+                tag: saved,
+              });
+            } else {
+              return await this.productTagService.create({
+                product: product,
+                tag: saved,
+              });
+            }
+          }
+        }),
+      );
 
       await queryRunner.commitTransaction();
     } catch (err) {
       // since we have errors lets rollback the changes we made
       await queryRunner.rollbackTransaction();
+      throw err;
     } finally {
       // you need to release a queryRunner which was manually instantiated
       await queryRunner.release();
-      return savedProductTag;
     }
   }
 

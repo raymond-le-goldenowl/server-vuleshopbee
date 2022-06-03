@@ -29,22 +29,25 @@ export class OrderItemService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      cartItems.forEach(async (item) => {
-        await this.orderItemRepository.save({
-          quantity: item.quantity,
-          price: item.product.price * item.quantity,
-          product_name: item.product.name,
-          product_price: item.product.price,
-          product_image: item.product.image,
-          order,
-          product: item.product,
-        });
-      });
+      await Promise.all(
+        cartItems.map(async (item) => {
+          return await this.orderItemRepository.save({
+            quantity: item.quantity,
+            price: item.product.price * item.quantity,
+            product_name: item.product.name,
+            product_price: item.product.price,
+            product_image: item.product.image,
+            order,
+            product: item.product,
+          });
+        }),
+      );
 
       await queryRunner.commitTransaction();
     } catch (err) {
       // since we have errors lets rollback the changes we made
       await queryRunner.rollbackTransaction();
+      throw err;
     } finally {
       // you need to release a queryRunner which was manually instantiated
       await queryRunner.release();
@@ -57,19 +60,22 @@ export class OrderItemService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      orderItems.forEach(async (item) => {
-        // cập nhập lại số lượng từng sản phẩm.
-        await this.productsService.reduceTheNumberOfProduct(
-          item.product.id,
-          item.quantity,
-          true,
-        );
-      });
+      await Promise.all(
+        orderItems.map(async (item) => {
+          // cập nhập lại số lượng từng sản phẩm.
+          return await this.productsService.reduceTheNumberOfProduct(
+            item.product.id,
+            item.quantity,
+            true,
+          );
+        }),
+      );
 
       await queryRunner.commitTransaction();
     } catch (err) {
       // since we have errors lets rollback the changes we made
       await queryRunner.rollbackTransaction();
+      throw err;
     } finally {
       // you need to release a queryRunner which was manually instantiated
       await queryRunner.release();
@@ -86,14 +92,11 @@ export class OrderItemService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      orderItems.forEach(async (item) => {
-        const deleted = await this.orderItemRepository.softDelete(item.id);
-        if (!deleted) {
-          throw new BadRequestException(
-            'Thực hiện tính toán sản phẩm trong giỏ hàng không thành công',
-          );
-        }
-      });
+      await Promise.all(
+        orderItems.map(
+          async (item) => await this.orderItemRepository.softDelete(item.id),
+        ),
+      );
 
       await queryRunner.commitTransaction();
     } catch (err) {

@@ -27,8 +27,25 @@ export class CartItemController {
   @UseGuards(JwtAuthGuard)
   @Roles(Role.User)
   @Post()
-  create(@Body() createCartItemDto: CreateCartItemDto) {
+  async create(@Body() createCartItemDto: CreateCartItemDto) {
     return this.cartItemService.create(createCartItemDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.User)
+  @Post('/save-items-combined')
+  async saveItemsCombined(
+    @Body('mergedArray')
+    mergedArray: [
+      {
+        cartItemId: string;
+        productId: string;
+        quantity: number;
+      },
+    ],
+    @GetCurrentUserDecorator() user: User,
+  ) {
+    return this.cartItemService.saveItemsCombined(mergedArray, user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -75,7 +92,6 @@ export class CartItemController {
   @Roles(Role.User)
   @Delete(':id')
   delete(
-    @Req() req,
     @Param('id') id: string,
     @Query() deleteCartItemDto: DeleteCartItemDto,
   ) {

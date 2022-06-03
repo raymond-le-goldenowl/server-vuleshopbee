@@ -17,6 +17,7 @@ import {
   QueryFailedError,
   EntityNotFoundError,
   CannotCreateEntityIdMapError,
+  QueryRunnerAlreadyReleasedError,
 } from 'typeorm';
 import { HttpAdapterHost } from '@nestjs/core';
 
@@ -36,6 +37,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let code = 'HttpException';
 
     Logger.error(
+      'Log Error =>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n',
       message,
       (exception as any).stack,
       `${httpAdapter.getRequestMethod(request)} ${httpAdapter.getRequestUrl(
@@ -79,6 +81,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
         httpStatus = (exception as ForbiddenException).getStatus();
         message = (exception as ForbiddenException).message;
         code = (exception as any).code;
+        break;
+      case QueryRunnerAlreadyReleasedError:
+        httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+        message = (exception as QueryRunnerAlreadyReleasedError).message;
+        code = (exception as any).code;
+        break;
         break;
       case QueryFailedError: // this is a TypeOrm error
         httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;

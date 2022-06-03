@@ -13,8 +13,8 @@ import { CartItemRepository } from './cart_item.repository';
 
 import { CartsService } from './../carts/carts.service';
 import { ProductsService } from './../products/products.service';
-import { DeleteResult, UpdateResult } from 'typeorm';
-
+import { DeleteResult, UpdateResult, Connection } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 @Injectable()
 export class CartItemService {
   constructor(
@@ -22,6 +22,7 @@ export class CartItemService {
     private cartItemRepository: CartItemRepository,
     private cartsService: CartsService,
     private productsService: ProductsService,
+    private connection: Connection,
   ) {}
 
   async create(createCartItemDto: CreateCartItemDto): Promise<CartItem> {
@@ -166,5 +167,62 @@ export class CartItemService {
       .from(CartItem)
       .where('cartId = :cartId', { cartId })
       .execute();
+  }
+
+  async saveItemsCombined(
+    mergedArray: [
+      {
+        cartItemId: string;
+        productId: string;
+        quantity: number;
+      },
+    ],
+    user: User,
+  ): Promise<any> {
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const { cart } = user;
+
+      await Promise.all(
+        mergedArray.map(async (item) => {
+          const { cartItemId, productId, quantity } = item;
+
+          if (cartItemId) {
+            const cartItem = await this.findOne(
+              cartItemId,
+              true,
+              cart.id,
+              productId,
+            );
+
+            cartItem.quantity = quantity;
+            return await queryRunner.manager.save(cartItem);
+          }
+
+          const foundProduct = (await this.productsService.findOne(productId))
+            .product;
+
+          const createdCartItem = this.cartItemRepository.create({
+            cart,
+            product: foundProduct,
+            quantity: Number(quantity),
+          });
+          return await queryRunner.manager.save(createdCartItem);
+        }),
+      );
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      // since we have errors lets rollback the changes we made
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      // you need to release a queryRunner which was manually instantiated
+      await queryRunner.release();
+      return await this.cartsService.findOneCartByAccessToken(user);
+    }
   }
 }

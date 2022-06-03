@@ -2,7 +2,6 @@ import { User } from 'src/users/entities/user.entity';
 import {
   Entity,
   Column,
-  OneToOne,
   OneToMany,
   ManyToOne,
   JoinColumn,
@@ -12,7 +11,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { OrderStatusCode } from 'src/order_status_code/entities/order_status_code.entity';
 import { OrderItem } from 'src/order_item/entities/order_item.entity';
 
 @Entity()
@@ -29,7 +27,7 @@ export class Order {
   @Column({ type: 'varchar', length: 255 })
   description: string;
 
-  @Column({ type: 'char', length: 320 })
+  @Column({ type: 'varchar', length: 320, nullable: true })
   receiver: string;
 
   @Column({ type: 'boolean', default: false })
@@ -52,16 +50,6 @@ export class Order {
     type: 'timestamp',
   })
   deleted_at: Date;
-
-  // @ManyToOne(
-  //   () => OrderStatusCode,
-  //   (orderStatusCode) => orderStatusCode.orders,
-  //   {
-  //     eager: true,
-  //   },
-  // )
-  // @JoinColumn()
-  // orderStatusCode: OrderStatusCode;
 
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn()
