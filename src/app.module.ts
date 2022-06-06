@@ -1,5 +1,10 @@
 import { join } from 'path';
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -39,6 +44,8 @@ import { ProductAccountsModule } from './product_accounts/product_accounts.modul
 
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './http-exception.filter';
+import { JsonBodyMiddleware } from './middlewares/json-bodymiddleware';
+import { UrlEncodedBodyMiddleware } from './middlewares/url-encoded-body-middleware';
 
 @Module({
   imports: [
@@ -90,4 +97,11 @@ import { HttpExceptionFilter } from './http-exception.filter';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JsonBodyMiddleware, UrlEncodedBodyMiddleware)
+      .exclude({ path: '/api/v1/stripe/webhook', method: RequestMethod.POST })
+      .forRoutes('*');
+  }
+}

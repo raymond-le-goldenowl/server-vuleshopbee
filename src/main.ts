@@ -5,13 +5,15 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
-// somewhere in your initialization file
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './http-exception.filter';
+// import rawBodyMiddleware from './rawBody.middleware';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+
+  // app.use(rawBodyMiddleware());
 
   app.setGlobalPrefix('api');
 

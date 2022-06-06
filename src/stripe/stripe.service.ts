@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { User } from 'src/users/entities/user.entity';
 import { OrdersService } from 'src/orders/orders.service';
@@ -82,5 +82,23 @@ export class StripeService {
     }
 
     return session;
+  }
+
+  public async constructEventFromPayload(signature: string, payload: Buffer) {
+    let event: any;
+    try {
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      event = this.stripe.webhooks.constructEvent(
+        payload,
+        signature,
+        webhookSecret,
+      );
+    } catch (err) {
+      throw new BadRequestException(
+        '⚠️  Webhook signature verification failed.',
+      );
+    }
+
+    return event;
   }
 }
