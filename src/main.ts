@@ -7,26 +7,28 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './http-exception.filter';
-// import rawBodyMiddleware from './rawBody.middleware';
+import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bodyParser: false });
 
-  // app.use(rawBodyMiddleware());
-
+  // set global prefix
   app.setGlobalPrefix('api');
 
+  //setup global middleware
   app.enableCors({});
   app.use(
     helmet({
       crossOriginResourcePolicy: false,
     }),
   );
+
+  // Setup global filters
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new HttpExceptionFilter(httpAdapterHost));
   app.useGlobalPipes(new ValidationPipe());
 
+  // Config Swagger
   const config = new DocumentBuilder()
     .setTitle('vuleshopbee-api')
     .setVersion('1.0')
@@ -34,6 +36,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
 
+  // Listen app
   await app.listen(8081);
 }
 bootstrap();
