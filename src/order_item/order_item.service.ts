@@ -31,7 +31,8 @@ export class OrderItemService {
     try {
       await Promise.all(
         cartItems.map(async (item) => {
-          return await this.orderItemRepository.save({
+          // Need created a entity before save
+          const newOrderItem = this.orderItemRepository.create({
             quantity: item.quantity,
             price: item.product.price * item.quantity,
             product_name: item.product.name,
@@ -40,6 +41,7 @@ export class OrderItemService {
             order,
             product: item.product,
           });
+          return await queryRunner.manager.save(newOrderItem);
         }),
       );
 

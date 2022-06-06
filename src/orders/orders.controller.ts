@@ -24,9 +24,9 @@ import { UpdateOrderBeforeCheckoutDto } from './dto/update-order-before-checkout
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  @Post()
   @UseGuards(JwtAuthGuard)
   @Roles(Role.Admin, Role.User)
-  @Post()
   create(
     @Body() createOrderDto: CreateOrderDto,
     @GetCurrentUserDecorator() user: User,

@@ -41,6 +41,11 @@ export class OrdersService {
       cart.id,
     );
 
+    // throw error if product in cart equal 0
+    if (allCartItemsWithCartId.length === 0) {
+      throw new BadRequestException('Can not create an order');
+    }
+
     // find with quantity of product is greater than product amount
     const someQuantityGreaterThanProductAmount = allCartItemsWithCartId.find(
       (item) => {
