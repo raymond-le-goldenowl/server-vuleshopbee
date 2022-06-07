@@ -4,7 +4,6 @@ import {
   Headers,
   Param,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -24,16 +23,6 @@ export class StripeController {
     @Param('orderId') orderId: string,
   ) {
     return await this.stripeService.checkoutSessions(user, orderId);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/retrieve-payment-intent/:cs')
-  async retrievePaymentIntent(
-    @GetCurrentUserDecorator() user: User,
-    @Param('cs') cs: string,
-    @Query('orderId') orderId: string,
-  ) {
-    return await this.stripeService.retrievePaymentIntent(cs, orderId, user);
   }
 
   @Post('/webhook')
@@ -56,48 +45,27 @@ export class StripeController {
 
     // Handle the event
     switch (eventType) {
-      case 'checkout.session.async_payment_failed':
-        {
-          const session = data.object;
-          console.log(
-            '🚀 ~ file: stripe.controller.ts ~ line 61 ~ StripeController ~ session',
-            session,
-          );
-          // Then define and call a function to handle the event checkout.session.async_payment_failed
-        }
+      case 'charge.succeeded': {
+        // get recieptUrl
+        const session = data.object;
+        const paymentIntentId = session?.payment_intent;
+        const receiptUrl = session.receipt_url;
 
         break;
-      case 'checkout.session.async_payment_succeeded':
-        {
-          const session = data.object;
-          console.log(
-            '🚀 ~ file: stripe.controller.ts ~ line 66 ~ StripeController ~ session',
-            session,
-          );
-          // Then define and call a function to handle the event checkout.session.async_payment_succeeded
-        }
+      }
 
-        break;
-      case 'checkout.session.completed':
-        {
-          const session = data.object;
-          console.log(
-            '🚀 ~ file: stripe.controller.ts ~ line 71 ~ StripeController ~ session',
-            session,
-          );
-          // Then define and call a function to handle the event checkout.session.completed
-        }
+      case 'checkout.session.completed': {
+        const session = data.object;
+        const paymentIntentId = session?.payment_intent;
 
+        await this.stripeService.updateOrderWhenCheckoutSessionCompleted(
+          paymentIntentId,
+        );
         break;
-      case 'checkout.session.expired':
-        {
-          const session = data.object;
-          // Then define and call a function to handle the event checkout.session.expired
-        }
-        break;
-      // ... handle other event types
+      }
+
       default:
-        console.log(`Unhandled event type ${event.type}`);
+        break;
     }
   }
 }

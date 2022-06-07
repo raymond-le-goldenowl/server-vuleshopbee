@@ -153,14 +153,11 @@ export class OrdersService {
   }
 
   async update(id: string, updateOrderDto: UpdateOrderDto, user: User) {
-    // cập nhập số lượng hàng.
+    // update quantity of invoice
     const order = await this.findOne(id, false);
     const orderItems = await this.orderItemService.getAllByOrder(order);
-    order.status = updateOrderDto.status;
-    await this.ordersRepository.save(order);
 
-    await this.orderItemService.updateManyProductWithEachOrderItem(orderItems);
-    // send mail here.
+    // data send to customer
     const arrayData = [];
     const productAccountIds = [];
 
@@ -171,20 +168,36 @@ export class OrdersService {
       );
 
     // create list to send to customer
-    orderItems.forEach(async (oi) => {
+    orderItems.forEach((oi) => {
+      // if product account empty will return null
       if (productAccounts.length === 0) return null;
+
       productAccounts.forEach((pa, index) => {
+        // if condition true, that means account was empty
         if (index >= oi.quantity) return null;
+
+        // create object data
         const dt = {
           productName: oi?.product?.name,
           productUsername: pa?.username,
           productPassword: pa?.password,
         };
+
+        // get account id to delete account by IDs
         productAccountIds.push(pa.id);
+        // add account to array
         arrayData.push(dt);
       });
     });
 
+    // Update order
+    order.status = updateOrderDto.status;
+    await this.ordersRepository.save(order);
+
+    // Update quantity of products
+    await this.orderItemService.updateManyProductWithEachOrderItem(orderItems);
+
+    // create message template
     const message = {
       from: process.env.EMAIL_USER,
       to: user.email,
@@ -216,9 +229,33 @@ export class OrdersService {
     // send to receiver
     message.to = order.receiver;
     await this.emailService.sendMail(message);
+
+    // delete account data by account IDs
     await this.productAccountsService.deleteProductAccountsByProductIds(
       productAccountIds,
     );
+  }
+
+  async savePaymentIntentId(
+    orderId: string,
+    paymentIntentId: string,
+  ): Promise<Order> {
+    const foundOrder = await this.findOne(orderId, false);
+
+    foundOrder.paymentIntentId = paymentIntentId;
+
+    return await this.ordersRepository.save(foundOrder);
+  }
+
+  async findOrderByPaymentIntentId(paymentIntentId: string): Promise<Order> {
+    const found = await this.ordersRepository.findOne({
+      relations: ['orderItems', 'orderItems.product', 'user'],
+      where: { paymentIntentId },
+    });
+    if (!found) {
+      throw new NotFoundException('Không tìm thấy đơn hàng');
+    }
+    return found;
   }
 
   async remove(id: string, remove: boolean) {

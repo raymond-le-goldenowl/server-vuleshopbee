@@ -59,14 +59,15 @@ export class OrderItemService {
     await queryRunner.startTransaction();
     try {
       await Promise.all(
-        orderItems.map(async (item) => {
-          // cập nhập lại số lượng từng sản phẩm.
-          return await this.productsService.reduceTheNumberOfProduct(
-            item.product.id,
-            item.quantity,
-            true,
-          );
-        }),
+        // Update the quantity of products
+        orderItems.map(
+          async (item) =>
+            await this.productsService.reduceTheNumberOfProduct(
+              item.product.id,
+              item.quantity,
+              true,
+            ),
+        ),
       );
 
       await queryRunner.commitTransaction();

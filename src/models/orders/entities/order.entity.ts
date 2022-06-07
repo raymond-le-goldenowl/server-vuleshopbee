@@ -33,6 +33,9 @@ export class Order {
   @Column({ type: 'boolean', default: false })
   status: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  paymentIntentId: string;
+
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP()',

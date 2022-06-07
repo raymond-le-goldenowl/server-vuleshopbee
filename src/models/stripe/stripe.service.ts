@@ -60,28 +60,20 @@ export class StripeService {
         mode: 'payment',
         line_items: items,
         customer: user.stripeCustomerId,
-        success_url: `${process.env.FRONTEND_URL}/account/stripe/success`,
+        success_url: `${process.env.FRONTEND_URL}/account/order/${orderId}`,
         cancel_url: `${process.env.FRONTEND_URL}/account/stripe/cancel`,
       });
+
+      // save payment intent id.
+      await this.ordersService.savePaymentIntentId(
+        orderId,
+        checkoutSessions?.payment_intent,
+      );
     } catch (error) {
       throw error;
     }
 
-    return { checkoutSessions, orderId };
-  }
-
-  async retrievePaymentIntent(
-    clientSecret: string,
-    orderId: string,
-    user: User,
-  ) {
-    const session = this.stripe.checkout.sessions.retrieve(clientSecret);
-
-    if (session) {
-      this.ordersService.update(orderId, { status: true }, user);
-    }
-
-    return session;
+    return { checkoutSessions };
   }
 
   public async constructEventFromPayload(signature: string, payload: Buffer) {
@@ -100,5 +92,14 @@ export class StripeService {
     }
 
     return event;
+  }
+
+  async updateOrderWhenCheckoutSessionCompleted(paymentIntentId: string) {
+    const order = await this.ordersService.findOrderByPaymentIntentId(
+      paymentIntentId,
+    );
+    const { user } = order;
+
+    await this.ordersService.update(order.id, { status: true }, user);
   }
 }
