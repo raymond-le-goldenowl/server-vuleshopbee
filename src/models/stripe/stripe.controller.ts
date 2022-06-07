@@ -45,15 +45,6 @@ export class StripeController {
 
     // Handle the event
     switch (eventType) {
-      case 'charge.succeeded': {
-        // get recieptUrl
-        const session = data.object;
-        const paymentIntentId = session?.payment_intent;
-        const receiptUrl = session.receipt_url;
-
-        break;
-      }
-
       case 'checkout.session.completed': {
         const session = data.object;
         const paymentIntentId = session?.payment_intent;
