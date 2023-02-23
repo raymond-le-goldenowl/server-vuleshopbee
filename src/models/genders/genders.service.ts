@@ -1,0 +1,32 @@
+import { GendersRepository } from './genders.repository';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateGenderDto } from './dto/create-gender.dto';
+import { UpdateGenderDto } from './dto/update-gender.dto';
+
+@Injectable()
+export class GendersService {
+  constructor(
+    @InjectRepository(GendersRepository)
+    private gendersRepository: GendersRepository,
+  ) {}
+  create(createGenderDto: CreateGenderDto) {
+    return 'This action adds a new gender';
+  }
+
+  findAll() {
+    return `This action returns all genders`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} gender`;
+  }
+
+  update(id: number, updateGenderDto: UpdateGenderDto) {
+    return `This action updates a #${id} gender`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} gender`;
+  }
+}
