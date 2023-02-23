@@ -1,9 +1,15 @@
+import { DiscountsRepository } from './discounts.repository';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { UpdateDiscountDto } from './dto/update-discount.dto';
 
 @Injectable()
 export class DiscountsService {
+  constructor(
+    @InjectRepository(DiscountsRepository)
+    private discountsRepository: DiscountsRepository,
+  ) {}
   create(createDiscountDto: CreateDiscountDto) {
     return 'This action adds a new discount';
   }

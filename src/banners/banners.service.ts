@@ -38,7 +38,7 @@ export class BannersService {
 
     // if saved fail should be throw new error
     if (!saved) {
-      throw new BadRequestException(`Can not save banner`);
+      throw new BadRequestException(`Không thể lưu banner`);
     }
 
     return saved;
@@ -116,9 +116,7 @@ export class BannersService {
       await this.bannersRepository.delete(banner.id);
     } else {
       // Check if banner deleted
-      if (banner.deleted_at) {
-        throw new ConflictException(`Banner deleted before`);
-      }
+      if (banner.deleted_at) throw new ConflictException(`Banner deleted`);
 
       await this.bannersRepository.softDelete(banner.id);
     }

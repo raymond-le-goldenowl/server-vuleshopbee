@@ -1,42 +1,83 @@
 import {
-  Controller,
   Get,
+  Res,
   Post,
   Body,
-  Patch,
+  UseGuards,
+  Controller,
+  UploadedFile,
+  UseInterceptors,
   Param,
-  Delete,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { join } from 'path';
+import { Observable, of } from 'rxjs';
+import { FileInterceptor } from '@nestjs/platform-express';
 
-@Controller('users')
+import { Role } from './enums/role.enum';
+import { SignUpDto } from './dto/signup.dto';
+import { SignInDto } from './dto/signin.dto';
+import { UsersService } from './users.service';
+import { JwtAuthGuard } from './guards/jwt.guard';
+import { config } from './file-interceptor.config';
+import { Roles } from './decorators/roles.decorator';
+import { GetCurrentUserDecorator } from './decorators/get-user.decorator';
+import { SignInFbDto } from './dto/sigin-fb.dto';
+
+@Controller('v1/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Post('/signup')
+  signupLocal(@Body() signUpDto: SignUpDto) {
+    return this.usersService.signup(signUpDto);
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Post('/signin')
+  signinLocal(@Body() signInDto: SignInDto) {
+    return this.usersService.signin(signInDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Post('/facebook')
+  // @UseGuards(AuthGuard('facebook'))
+  async facebookLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
+    return this.usersService.createResDataFacebookLogin(signInFbDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Post('/google')
+  // @UseGuards(AuthGuard('google'))
+  async googleLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
+    return this.usersService.createResDataGoogleLogin(signInFbDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @Post('/logout')
+  @Roles(Role.Admin, Role.User)
+  logout(@GetCurrentUserDecorator() user) {
+    return this.usersService.logout(user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/profile')
+  @Roles(Role.Admin, Role.User)
+  getProfile(@GetCurrentUserDecorator() user) {
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/profile/image')
+  @Roles(Role.Admin, Role.User)
+  @UseInterceptors(FileInterceptor(config.fieldName, config.localOptions))
+  updateImage(@UploadedFile() image, @GetCurrentUserDecorator() user) {
+    return this.usersService.updateImage(user, image);
+  }
+
+  @Get('/image/avatar/:imageName')
+  getUserAvatar(
+    @Res() res,
+    @Param('imageName') imageName: string,
+  ): Observable<any> {
+    return of(
+      res.sendFile(join(process.cwd(), 'uploads/avatars/' + imageName)),
+    );
   }
 }

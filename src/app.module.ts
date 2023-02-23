@@ -13,6 +13,8 @@ import { WardsModule } from './wards/wards.module';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
 import { CartsModule } from './carts/carts.module';
+import { EmailModule } from './email/email.module';
+import { StripeModule } from './stripe/stripe.module';
 import { SlidesModule } from './slides/slides.module';
 import { OrdersModule } from './orders/orders.module';
 import { GendersModule } from './genders/genders.module';
@@ -31,16 +33,20 @@ import { PromotionModule } from './promotion/promotion.module';
 import { OrderItemModule } from './order_item/order_item.module';
 import { BroadcastsModule } from './broadcasts/broadcasts.module';
 import { CategoriesModule } from './categories/categories.module';
-import { OrderStatusCodeModule } from './order_status_code/order_status_code.module';
+import { ProductTagModule } from './product_tag/product_tag.module';
+import { ProductOptionsModule } from './product-options/product-options.module';
+import { ProductAccountsModule } from './product_accounts/product_accounts.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(config),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'uploads'),
+      serveRoot: '/uploads',
+      exclude: ['/api*'],
+    }),
     MulterModule.register({
       dest: './uploads',
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), '..', 'uploads'),
     }),
     TagsModule,
     NewsModule,
@@ -49,6 +55,8 @@ import { OrderStatusCodeModule } from './order_status_code/order_status_code.mod
     UsersModule,
     WardsModule,
     CartsModule,
+    EmailModule,
+    StripeModule,
     OrdersModule,
     SlidesModule,
     AddressModule,
@@ -67,7 +75,9 @@ import { OrderStatusCodeModule } from './order_status_code/order_status_code.mod
     OrderItemModule,
     BroadcastsModule,
     CategoriesModule,
-    OrderStatusCodeModule,
+    ProductTagModule,
+    ProductOptionsModule,
+    ProductAccountsModule,
   ],
   controllers: [],
   providers: [],

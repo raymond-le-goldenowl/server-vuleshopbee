@@ -6,12 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { MenuService } from './menu.service';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
 
-@Controller('menu')
+@Controller('v1/menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
@@ -27,16 +28,21 @@ export class MenuController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.menuService.findOne(+id);
+    return this.menuService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMenuDto: UpdateMenuDto) {
-    return this.menuService.update(+id, updateMenuDto);
+    return this.menuService.update(id, updateMenuDto);
+  }
+
+  @Delete('/all')
+  removeAll(@Query('remove') remove: boolean) {
+    return this.menuService.removeAll(remove);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.menuService.remove(+id);
+  remove(@Param('id') id: string, @Query('remove') remove: boolean) {
+    return this.menuService.remove(id, remove);
   }
 }
