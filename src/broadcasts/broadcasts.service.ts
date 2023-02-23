@@ -97,8 +97,9 @@ export class BroadcastsService {
       const broadcast = await this.findOneBroadcast(id);
 
       // Check if Broadcast deleted
-      if (broadcast.deleted_at)
-        throw new ConflictException(`Broadcast deleted`);
+      if (broadcast.deleted_at) {
+        throw new ConflictException(`Broadcast deleted before`);
+      }
 
       broadcastDeleted = await this.broadcastsRepository.softDelete(id);
     }
@@ -110,7 +111,7 @@ export class BroadcastsService {
 
     return {
       status: true,
-      message: 'xóa thành công',
+      message: 'Delete successfully',
     };
   }
 

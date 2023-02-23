@@ -11,7 +11,7 @@ import { GendersService } from './genders.service';
 import { CreateGenderDto } from './dto/create-gender.dto';
 import { UpdateGenderDto } from './dto/update-gender.dto';
 
-@Controller('v1/genders')
+@Controller('genders')
 export class GendersController {
   constructor(private readonly gendersService: GendersService) {}
 

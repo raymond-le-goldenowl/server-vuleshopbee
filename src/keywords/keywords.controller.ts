@@ -13,7 +13,7 @@ import { KeywordsService } from './keywords.service';
 import { CreateKeywordDto } from './dto/create-keyword.dto';
 import { UpdateKeywordDto } from './dto/update-keyword.dto';
 
-@Controller('v1/keywords')
+@Controller('keywords')
 export class KeywordsController {
   constructor(private readonly keywordsService: KeywordsService) {}
 
@@ -24,6 +24,7 @@ export class KeywordsController {
    */
   @Post()
   create(@Body() createKeywordDto: CreateKeywordDto) {
+    console.log(createKeywordDto);
     return this.keywordsService.create(createKeywordDto);
   }
 

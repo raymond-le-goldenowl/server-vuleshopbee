@@ -1,11 +1,12 @@
 import {
   Column,
   Entity,
+  ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
-  OneToMany,
 } from 'typeorm';
 
 import { User } from 'src/users/entities/user.entity';
@@ -39,6 +40,7 @@ export class Role {
   })
   deleted_at: Date;
 
-  @OneToMany(() => User, (user) => user.role)
-  users: User[];
+  @ManyToOne(() => User, (user) => user.roles)
+  @JoinColumn()
+  user: User;
 }

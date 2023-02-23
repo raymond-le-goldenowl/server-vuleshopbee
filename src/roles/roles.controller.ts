@@ -6,13 +6,12 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 
-@Controller('v1/roles')
+@Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
@@ -22,25 +21,22 @@ export class RolesController {
   }
 
   @Get()
-  findAll(@Query('with_deleted') withDeleted: boolean) {
-    return this.rolesService.findAll(withDeleted);
+  findAll() {
+    return this.rolesService.findAll();
   }
 
   @Get(':id')
-  findOne(
-    @Param('id') id: string,
-    @Query('with_deleted') withDeleted: boolean,
-  ) {
-    return this.rolesService.findOne(id, withDeleted);
+  findOne(@Param('id') id: string) {
+    return this.rolesService.findOne(+id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.rolesService.update(id, updateRoleDto);
+    return this.rolesService.update(+id, updateRoleDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Query('remove') remove: boolean) {
-    return this.rolesService.remove(id, remove);
+  remove(@Param('id') id: string) {
+    return this.rolesService.remove(+id);
   }
 }

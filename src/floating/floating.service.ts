@@ -8,10 +8,9 @@ import { isURL } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Floating } from './entities/floating.entity';
+import { FloatingRepository } from './floating.repository';
 import { CreateFloatingDto } from './dto/create-floating.dto';
 import { UpdateFloatingDto } from './dto/update-floating.dto';
-
-import { FloatingRepository } from './floating.repository';
 
 @Injectable()
 export class FloatingService {
@@ -111,8 +110,9 @@ export class FloatingService {
       const banner = await this.findOneBanner(id);
 
       // Check if banner deleted
-      if (banner.deleted_at)
+      if (banner.deleted_at) {
         throw new ConflictException(`Banner deleted before`);
+      }
 
       bannerDeleted = await this.floatingRepository.softDelete(id);
     }
@@ -124,7 +124,7 @@ export class FloatingService {
 
     return {
       status: true,
-      message: 'xóa thành công',
+      message: 'Delete successfully',
     };
   }
 

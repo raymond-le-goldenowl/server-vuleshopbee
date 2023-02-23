@@ -1,7 +1,7 @@
 import {
   Column,
   Entity,
-  ManyToOne,
+  OneToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -43,7 +43,7 @@ export class Menu {
   })
   deleted_at: Date;
 
-  @ManyToOne(() => Category, (category) => category.menu, { eager: true })
+  @OneToOne(() => Category, (category) => category.menu)
   @JoinColumn()
   category: Category;
 }

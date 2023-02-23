@@ -1,16 +1,9 @@
-import { DistrictsRepository } from './districts.repository';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateDistrictDto } from './dto/create-district.dto';
 import { UpdateDistrictDto } from './dto/update-district.dto';
 
 @Injectable()
 export class DistrictsService {
-  constructor(
-    @InjectRepository(DistrictsRepository)
-    private districtsRepository: DistrictsRepository,
-  ) {}
-
   create(createDistrictDto: CreateDistrictDto) {
     return 'This action adds a new district';
   }

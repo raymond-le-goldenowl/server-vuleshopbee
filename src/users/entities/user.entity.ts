@@ -3,7 +3,6 @@ import {
   Entity,
   OneToOne,
   OneToMany,
-  ManyToOne,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
@@ -24,40 +23,37 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  public stripeCustomerId: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255 })
   full_name: string;
 
   @Column({ type: 'char', length: 255 })
   username: string;
 
-  @Column({ type: 'char', length: 255, nullable: true })
+  @Column({ type: 'char', length: 255 })
   password: string;
 
   @Column({ type: 'char', length: 320 })
   email: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text' })
   avatar: string;
 
-  @Column({ type: 'char', length: 15, nullable: true })
+  @Column({ type: 'char', length: 15 })
   citizen_identity: string;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean' })
   public: boolean;
 
-  @Column({ type: 'varchar', length: 45, default: 'default' })
+  @Column({ type: 'varchar', length: 45 })
   auth_type: string;
 
-  @Column({ type: 'char', length: 255, nullable: true })
+  @Column({ type: 'char', length: 255 })
   user_google_id: string;
 
-  @Column({ type: 'char', length: 255, nullable: true })
+  @Column({ type: 'char', length: 255 })
   user_facebook_id: string;
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: 'boolean' })
   is_active: boolean;
 
   @CreateDateColumn({
@@ -82,9 +78,8 @@ export class User {
   @JoinColumn()
   gender: Gender;
 
-  @ManyToOne(() => Role, (role) => role.users)
-  @JoinColumn()
-  role: Role;
+  @OneToMany(() => Role, (role) => role.user)
+  roles: Role[];
 
   @OneToMany(() => Address, (adress) => adress.user)
   address: Address[];
@@ -95,9 +90,8 @@ export class User {
   @OneToMany(() => Promotion, (promotion) => promotion.user)
   promotion: Promotion[];
 
-  @OneToOne(() => Cart, (cart) => cart.user)
-  @JoinColumn()
-  cart: Cart;
+  @OneToMany(() => Cart, (cart) => cart.user)
+  carts: Cart[];
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
