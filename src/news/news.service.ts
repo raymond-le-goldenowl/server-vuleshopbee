@@ -106,7 +106,9 @@ export class NewsService {
       const New = await this.findOneNews(id);
 
       // Check if New deleted
-      if (New.deleted_at) throw new ConflictException(`New deleted before`);
+      if (New.deleted_at) {
+        throw new ConflictException(`New deleted before`);
+      }
 
       NewDeleted = await this.newsRepository.softDelete(id);
     }
@@ -118,7 +120,7 @@ export class NewsService {
 
     return {
       status: true,
-      message: 'Xóa thành công',
+      message: 'Delete successfully',
     };
   }
 

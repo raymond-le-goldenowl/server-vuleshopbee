@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
-  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -17,9 +16,6 @@ export class OrderStatusCode {
 
   @Column({ type: 'varchar', length: 255 })
   text: string;
-
-  @Column({ type: 'varchar', length: 255 })
-  value: string;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -39,6 +35,6 @@ export class OrderStatusCode {
   })
   deleted_at: Date;
 
-  // @OneToMany(() => Order, (order) => order.orderStatusCode)
-  // orders: Order[];
+  @OneToOne(() => Order, (order) => order.orderStatusCode)
+  order: Order;
 }

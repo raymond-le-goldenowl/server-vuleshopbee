@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
-  Column,
 } from 'typeorm';
 
 import { Cart } from 'src/carts/entities/cart.entity';
@@ -17,9 +16,6 @@ import { Product } from 'src/products/entities/product.entity';
 export class CartItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({ type: 'integer', default: 0 })
-  quantity: number;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -39,9 +35,7 @@ export class CartItem {
   })
   deleted_at: Date;
 
-  @OneToOne(() => Product, (product) => product.cartItem, {
-    eager: true,
-  })
+  @OneToOne(() => Product, (product) => product.cartItem)
   @JoinColumn()
   product: Product;
 

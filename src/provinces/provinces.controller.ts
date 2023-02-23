@@ -11,7 +11,7 @@ import { ProvincesService } from './provinces.service';
 import { CreateProvinceDto } from './dto/create-province.dto';
 import { UpdateProvinceDto } from './dto/update-province.dto';
 
-@Controller('v1/provinces')
+@Controller('provinces')
 export class ProvincesController {
   constructor(private readonly provincesService: ProvincesService) {}
 

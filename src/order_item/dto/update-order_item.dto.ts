@@ -1,16 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateOrderItemDto } from './create-order_item.dto';
 
-export class UpdateOrderItemDto {
-  @IsNotEmpty()
-  quantity: number;
-
-  @IsString()
-  @IsNotEmpty()
-  @IsUUID()
-  orderId: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @IsUUID()
-  productId: string;
-}
+export class UpdateOrderItemDto extends PartialType(CreateOrderItemDto) {}

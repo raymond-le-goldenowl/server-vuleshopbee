@@ -9,6 +9,5 @@ import { CategoriesRepository } from './categories.repository';
   imports: [TypeOrmModule.forFeature([CategoriesRepository])],
   controllers: [CategoriesController],
   providers: [CategoriesService],
-  exports: [CategoriesService],
 })
 export class CategoriesModule {}

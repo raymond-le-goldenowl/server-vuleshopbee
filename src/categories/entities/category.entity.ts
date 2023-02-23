@@ -40,8 +40,8 @@ export class Category {
   })
   deleted_at: Date;
 
-  @OneToMany(() => Menu, (menu) => menu.category)
-  menu: Menu[];
+  @OneToOne(() => Menu, (menu) => menu.category)
+  menu: Menu;
 
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];

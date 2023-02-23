@@ -20,7 +20,7 @@ import { SlidesService } from './slides.service';
 import { UpdateSlideDto } from './dto/update-slide.dto';
 import { CreateSlideDto } from './dto/create-slide.dto';
 
-@Controller('v1/slides')
+@Controller('slides')
 export class SlidesController {
   constructor(private readonly slidesService: SlidesService) {}
 

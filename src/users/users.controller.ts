@@ -1,83 +1,42 @@
 import {
+  Controller,
   Get,
-  Res,
   Post,
   Body,
-  UseGuards,
-  Controller,
-  UploadedFile,
-  UseInterceptors,
+  Patch,
   Param,
+  Delete,
 } from '@nestjs/common';
-import { join } from 'path';
-import { Observable, of } from 'rxjs';
-import { FileInterceptor } from '@nestjs/platform-express';
-
-import { Role } from './enums/role.enum';
-import { SignUpDto } from './dto/signup.dto';
-import { SignInDto } from './dto/signin.dto';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from './guards/jwt.guard';
-import { config } from './file-interceptor.config';
-import { Roles } from './decorators/roles.decorator';
-import { GetCurrentUserDecorator } from './decorators/get-user.decorator';
-import { SignInFbDto } from './dto/sigin-fb.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
-@Controller('v1/users')
+@Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('/signup')
-  signupLocal(@Body() signUpDto: SignUpDto) {
-    return this.usersService.signup(signUpDto);
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
-  @Post('/signin')
-  signinLocal(@Body() signInDto: SignInDto) {
-    return this.usersService.signin(signInDto);
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
   }
 
-  @Post('/facebook')
-  // @UseGuards(AuthGuard('facebook'))
-  async facebookLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
-    return this.usersService.createResDataFacebookLogin(signInFbDto);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(+id);
   }
 
-  @Post('/google')
-  // @UseGuards(AuthGuard('google'))
-  async googleLoginRedirect(@Body() signInFbDto: SignInFbDto): Promise<any> {
-    return this.usersService.createResDataGoogleLogin(signInFbDto);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(+id, updateUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/logout')
-  @Roles(Role.Admin, Role.User)
-  logout(@GetCurrentUserDecorator() user) {
-    return this.usersService.logout(user);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/profile')
-  @Roles(Role.Admin, Role.User)
-  getProfile(@GetCurrentUserDecorator() user) {
-    return user;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/profile/image')
-  @Roles(Role.Admin, Role.User)
-  @UseInterceptors(FileInterceptor(config.fieldName, config.localOptions))
-  updateImage(@UploadedFile() image, @GetCurrentUserDecorator() user) {
-    return this.usersService.updateImage(user, image);
-  }
-
-  @Get('/image/avatar/:imageName')
-  getUserAvatar(
-    @Res() res,
-    @Param('imageName') imageName: string,
-  ): Observable<any> {
-    return of(
-      res.sendFile(join(process.cwd(), 'uploads/avatars/' + imageName)),
-    );
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(+id);
   }
 }
